@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<title>PayPay</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&display=swap');
+
+:root{
+  --red:#e5002b;--red2:#ff1744;--red3:#ff6b8a;
+  --bg:#f5f5f5;--white:#ffffff;--gray:#8a8a8a;--gray2:#e8e8e8;--gray3:#f0f0f0;
+  --text:#1a1a1a;--text2:#555;
+  --green:#00b050;--green2:#00c853;
+  --gold:#ff9800;--blue:#1565c0;
+  --font:'M PLUS Rounded 1c',sans-serif;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+html,body{height:100%;background:#e0e0e0;font-family:var(--font);overflow:hidden;}
+body{display:flex;align-items:center;justify-content:center;}
+
+/* ── PHONE WRAPPER ── */
+#app{
+  width:min(390px,100vw);
+  height:min(844px,100dvh);
+  background:var(--bg);
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+  box-shadow:0 0 40px rgba(0,0,0,.3);
+}
+
+/* ── STATUS BAR ── */
+.statusbar{
+  flex-shrink:0;
+  height:44px;background:var(--red);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;
+  color:#fff;font-size:12px;font-weight:700;
+}
+.statusbar-left{font-size:14px;}
+.statusbar-right{display:flex;gap:6px;align-items:center;font-size:11px;}
+
+/* ── SCREENS ── */
+.screen{
+  position:absolute;
+  top:44px;left:0;right:0;bottom:0;
+  display:none;
+  flex-direction:column;
+  background:var(--bg);
+  overflow:hidden;
+}
+.screen.active{display:flex;}
+
+/* ── HOME SCREEN ── */
+#homeScreen{
+  background:var(--bg);
+}
+
+/* header red zone */
+.home-header{
+  background:var(--red);
+  padding:16px 20px 24px;
+  color:#fff;
+  position:relative;
+}
+.home-header-top{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.app-logo{
+  font-size:22px;font-weight:900;letter-spacing:-.5px;
+  color:#fff;
+}
+.header-icons{display:flex;gap:14px;}
+.header-icon{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  transition:background .15s;
+}
+.header-icon:hover{background:rgba(255,255,255,.3);}
+
+/* balance card */
+.balance-card{
+  background:#fff;
+  border-radius:16px;
+  padding:18px 20px;
+  margin:0 16px;
+  margin-top:-16px;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);
+  position:relative;z-index:2;
+}
+.balance-label{font-size:11px;color:var(--gray);font-weight:700;letter-spacing:.05em;margin-bottom:4px;}
+.balance-amount{
+  font-size:36px;font-weight:900;color:var(--text);
+  letter-spacing:-1px;line-height:1;
+  display:flex;align-items:baseline;gap:3px;
+}
+.balance-yen{font-size:20px;font-weight:700;color:var(--gray);}
+.balance-change{
+  font-size:12px;font-weight:700;margin-top:6px;
+  display:flex;align-items:center;gap:4px;
+}
+.balance-change.up{color:var(--green);}
+.balance-change.down{color:var(--red2);}
+
+/* alert banner */
+.alert-banner{
+  background:linear-gradient(135deg,#fff3e0,#fff8e1);
+  border:1.5px solid var(--gold);
+  border-radius:12px;
+  margin:12px 16px 0;
+  padding:12px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.alert-banner:active{transform:scale(.98);}
+.alert-icon{font-size:22px;flex-shrink:0;}
+.alert-text-wrap{flex:1;}
+.alert-title{font-size:13px;font-weight:800;color:#e65100;margin-bottom:2px;}
+.alert-sub{font-size:11px;color:#bf360c;line-height:1.4;}
+.alert-arrow{font-size:16px;color:var(--gold);align-self:center;}
+
+/* quick action buttons */
+.quick-actions{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:8px;padding:16px;
+}
+.qa-btn{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  cursor:pointer;transition:transform .15s;
+}
+.qa-btn:active{transform:scale(.92);}
+.qa-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);
+}
+.qa-label{font-size:10px;font-weight:700;color:var(--text2);text-align:center;line-height:1.3;}
+
+/* section */
+.section{padding:0 16px 12px;}
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;
+}
+.section-title{font-size:14px;font-weight:800;color:var(--text);}
+.section-more{font-size:12px;color:var(--red);font-weight:700;cursor:pointer;}
+
+/* asset card */
+.asset-row{
+  background:#fff;border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+  cursor:pointer;transition:all .15s;
+}
+.asset-row:active{transform:scale(.98);}
+.asset-emoji{font-size:24px;width:40px;text-align:center;}
+.asset-info{flex:1;}
+.asset-name{font-size:13px;font-weight:800;color:var(--text);}
+.asset-sub{font-size:11px;color:var(--gray);margin-top:1px;}
+.asset-right{text-align:right;}
+.asset-val{font-size:13px;font-weight:800;color:var(--text);}
+.asset-chg{font-size:11px;font-weight:700;margin-top:1px;}
+.asset-chg.up{color:var(--green);}
+.asset-chg.down{color:var(--red2);}
+
+/* history item */
+.hist-item{
+  background:#fff;border-radius:10px;
+  padding:10px 12px;margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 1px 4px rgba(0,0,0,.05);
+}
+.hist-icon{font-size:18px;width:34px;text-align:center;}
+.hist-info{flex:1;}
+.hist-name{font-size:12px;font-weight:700;color:var(--text);}
+.hist-date{font-size:10px;color:var(--gray);}
+.hist-amt{font-size:13px;font-weight:800;}
+.hist-amt.plus{color:var(--green);}
+.hist-amt.minus{color:var(--red2);}
+
+/* scroll content */
+.home-scroll{flex:1;overflow-y:auto;padding-bottom:90px;}
+.home-scroll::-webkit-scrollbar{display:none;}
+
+/* balance card inside scroll */
+.balance-card{
+  background:#fff;
+  border-radius:16px;
+  padding:18px 20px;
+  margin:0 16px 12px;
+  margin-top:-16px;
+  box-shadow:0 4px 20px rgba(0,0,0,.12);
+  position:relative;z-index:2;
+}
+
+/* debt banner */
+.debt-banner{
+  background:linear-gradient(135deg,#e3f2fd,#e8f5e9);
+  border:1.5px solid #1565c0;
+  border-radius:12px;
+  margin:0 16px 8px;
+  padding:12px 14px;
+  display:flex;align-items:flex-start;gap:10px;
+  cursor:pointer;transition:all .15s;
+}
+.debt-banner:active{transform:scale(.98);}
+.debt-icon{font-size:22px;flex-shrink:0;}
+.debt-text-wrap{flex:1;}
+.debt-title{font-size:13px;font-weight:800;color:#0d47a1;margin-bottom:2px;}
+.debt-sub{font-size:11px;color:#1565c0;line-height:1.4;}
+.debt-arrow{font-size:16px;color:#1565c0;align-self:center;}
+
+/* ── ADMIN PANEL ── */
+#adminPanel{
+  position:absolute;inset:0;z-index:500;
+  background:rgba(0,0,0,.7);
+  display:none;align-items:flex-end;
+  backdrop-filter:blur(4px);
+}
+#adminPanel.show{display:flex;}
+.admin-sheet{
+  width:100%;background:#1a1a1a;
+  border-radius:24px 24px 0 0;
+  padding:20px 20px 40px;
+  animation:sheetUp .3s cubic-bezier(.4,0,.2,1);
+}
+.admin-handle{width:40px;height:4px;background:#444;border-radius:2px;margin:0 auto 14px;}
+.admin-title{font-size:14px;font-weight:900;color:#ff4444;letter-spacing:.2em;text-align:center;margin-bottom:2px;}
+.admin-sub{font-size:10px;color:#555;letter-spacing:.15em;text-align:center;margin-bottom:16px;}
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+.adm-btn{
+  height:52px;border-radius:12px;border:1px solid #333;
+  background:#222;font-family:var(--font);font-size:11px;font-weight:800;
+  color:#ccc;cursor:pointer;transition:all .12s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+}
+.adm-btn:active{background:#333;}
+.adm-btn.danger{border-color:#ff4444;color:#ff4444;}
+.adm-row{display:flex;gap:8px;margin-bottom:8px;}
+.adm-input{
+  flex:1;height:42px;border-radius:10px;border:1px solid #333;
+  background:#222;color:#fff;font-family:var(--font);font-size:14px;font-weight:700;
+  padding:0 12px;outline:none;
+}
+.adm-input::placeholder{color:#444;}
+.adm-apply{
+  height:42px;padding:0 16px;border-radius:10px;border:none;
+  background:#e5002b;color:#fff;font-family:var(--font);font-size:12px;font-weight:800;
+  cursor:pointer;white-space:nowrap;
+}
+.adm-msg{font-size:11px;color:#888;text-align:center;min-height:16px;margin-bottom:8px;}
+.adm-close{
+  width:100%;height:44px;border-radius:12px;border:1px solid #333;
+  background:transparent;color:#666;font-family:var(--font);font-size:13px;font-weight:700;
+  cursor:pointer;margin-top:4px;
+}
+
+/* ── 5-ITEM NAV ── */
+.nav-item{font-size:8px;}
+.nav-icon{font-size:20px;}
+
+/* ── VIP PAGE ── */
+.vip-page-scroll{flex:1;overflow-y:auto;padding:14px;padding-bottom:100px;}
+.vip-page-scroll::-webkit-scrollbar{display:none;}
+
+.vip-hero{
+  background:linear-gradient(135deg,#1a1a1a 0%,#2d2520 50%,#1a1a1a 100%);
+  border:1.5px solid #ffd700;border-radius:20px;
+  padding:24px 20px;margin-bottom:14px;text-align:center;
+  box-shadow:0 4px 30px rgba(255,215,0,.2);
+  position:relative;overflow:hidden;
+}
+.vip-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,215,0,.12),transparent 60%);
+  pointer-events:none;
+}
+.vip-crown-big{font-size:52px;line-height:1;margin-bottom:8px;
+  filter:drop-shadow(0 0 12px rgba(255,215,0,.6));}
+.vip-hero-title{font-size:26px;font-weight:900;color:#ffd700;margin-bottom:4px;
+  text-shadow:0 0 20px rgba(255,215,0,.5);}
+.vip-hero-sub{font-size:12px;color:#888;margin-bottom:16px;}
+.vip-price{font-size:32px;font-weight:900;color:#ffd700;margin-bottom:4px;}
+.vip-price-sub{font-size:11px;color:#666;}
+.vip-buy-btn{
+  margin-top:16px;width:100%;height:52px;border-radius:14px;border:none;
+  background:linear-gradient(135deg,#ffd700,#ff9800);
+  color:#1a1a1a;font-family:var(--font);font-size:16px;font-weight:900;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 4px 16px rgba(255,215,0,.4);
+}
+.vip-buy-btn:active{transform:scale(.97);}
+.vip-buy-btn:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+.vip-owned-badge{
+  margin-top:14px;background:rgba(255,215,0,.1);border:1px solid #ffd700;
+  border-radius:12px;padding:10px;
+  font-size:13px;font-weight:800;color:#ffd700;text-align:center;
+}
+
+.vip-perks-section{margin-bottom:14px;}
+.vip-perks-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.vip-perk-item{
+  background:#fff;border-radius:12px;padding:10px 14px;margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,.06);
+}
+.vip-perk-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center;}
+.vip-perk-text{flex:1;}
+.vip-perk-name{font-size:13px;font-weight:800;color:var(--text);}
+.vip-perk-desc{font-size:11px;color:var(--gray);margin-top:1px;}
+
+/* ── TITLES SECTION ── */
+.titles-section-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px;
+  display:flex;align-items:center;gap:6px;}
+.title-item{
+  background:#fff;border-radius:14px;padding:11px 12px;
+  margin-bottom:7px;display:flex;align-items:center;gap:10px;
+  box-shadow:0 1px 5px rgba(0,0,0,.06);cursor:pointer;transition:all .15s;
+}
+.title-item:active{transform:scale(.98);}
+.title-item.locked{opacity:.4;cursor:default;}
+.title-item.equipped{box-shadow:0 0 0 2px var(--red),0 2px 10px rgba(229,0,43,.12);}
+.title-icon-bg{width:40px;height:40px;border-radius:10px;background:var(--gray3);
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.title-info{flex:1;min-width:0;}
+.title-name-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:2px;}
+.title-cond-text{font-size:11px;color:var(--gray);line-height:1.4;}
+.title-prog-text{font-size:10px;font-weight:700;color:var(--red);margin-top:1px;}
+.title-equipped-tag{font-size:9px;color:var(--red);font-weight:700;letter-spacing:.05em;}
+
+/* 称号バッジ（色別） */
+.tb{display:inline-block;padding:1px 9px;border-radius:20px;font-size:11px;font-weight:800;border:1.5px solid;white-space:nowrap;}
+.tb-1{color:#9e9e9e;border-color:#9e9e9e;background:rgba(158,158,158,.08);}
+.tb-2{color:#4caf50;border-color:#4caf50;background:rgba(76,175,80,.08);}
+.tb-3{color:#2196f3;border-color:#2196f3;background:rgba(33,150,243,.08);}
+.tb-4{color:#9c27b0;border-color:#9c27b0;background:rgba(156,39,176,.1);}
+.tb-5{
+  background:linear-gradient(135deg,#ff6b35,#f7c59f,#e84393);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;border-color:#ff6b35;
+}
+.tb-6{
+  background:linear-gradient(135deg,#ffd700,#ff4500,#ff1493,#00bfff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;border-color:#ffd700;
+  animation:tbGlow 2s ease-in-out infinite;
+}
+@keyframes tbGlow{0%,100%{box-shadow:0 0 6px #ffd70066;}50%{box-shadow:0 0 14px #ff1493aa;}}
+.tb-vip{
+  color:#ffd700;border-color:#ffd700;
+  background:linear-gradient(135deg,#1a1a1a,#333);
+  box-shadow:0 0 8px rgba(255,215,0,.35);
+  animation:vipGlow 2s ease-in-out infinite;
+}
+@keyframes vipGlow{0%,100%{box-shadow:0 0 6px rgba(255,215,0,.3);}50%{box-shadow:0 0 14px rgba(255,215,0,.6);}}
+
+/* ── ADMIN FIX ── */
+.adm-full-btn{
+  width:100%;height:46px;border-radius:12px;border:1px solid #333;
+  background:#222;color:#ccc;
+  font-family:var(--font);font-size:13px;font-weight:800;
+  cursor:pointer;transition:all .12s;margin-bottom:7px;
+  text-align:left;padding:0 16px;display:flex;align-items:center;gap:8px;
+}
+.adm-full-btn:active{background:#333;}
+.adm-full-btn.danger{border-color:#ff4444;color:#ff4444;}
+.adm-full-btn.active-mode{border-color:#00c853;color:#00c853;background:rgba(0,200,83,.08);}
+
+/* ── STOCK MAX BUY BTN ── */
+.invest-btn.maxbuy{background:var(--gold);color:#fff;}
+
+/* ── GODMODE INDICATOR ── */
+#godModeChip{
+  position:fixed;top:62px;left:10px;z-index:25;
+  background:#00c853;color:#fff;border-radius:20px;padding:3px 10px;
+  font-size:10px;font-weight:800;letter-spacing:.05em;
+  display:none;pointer-events:none;
+  box-shadow:0 2px 8px rgba(0,200,83,.4);
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{
+  position:absolute;bottom:0;left:0;right:0;
+  background:#fff;
+  border-top:1px solid var(--gray2);
+  display:flex;
+  padding-bottom:var(--safe-bottom);
+  z-index:100;
+}
+.nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:10px 0 8px;cursor:pointer;transition:color .15s;
+  color:var(--gray);font-size:9px;font-weight:700;gap:3px;
+}
+.nav-item.active{color:var(--red);}
+.nav-icon{font-size:22px;line-height:1;}
+.nav-label{letter-spacing:.03em;}
+
+/* ── INVEST SCREEN ── */
+#investScreen .screen-header{
+  background:var(--white);
+  padding:14px 16px;
+  display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid var(--gray2);
+  flex-shrink:0;
+}
+.back-btn{
+  width:34px;height:34px;border-radius:50%;
+  background:var(--gray3);border:none;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;cursor:pointer;
+  transition:background .15s;
+}
+.back-btn:active{background:var(--gray2);}
+.screen-title{font-size:16px;font-weight:800;color:var(--text);flex:1;}
+
+.invest-scroll{flex:1;overflow-y:auto;padding:16px;padding-bottom:100px;}
+.invest-scroll::-webkit-scrollbar{display:none;}
+
+/* stock card */
+.stock-card{
+  background:#fff;border-radius:16px;
+  margin-bottom:12px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+.stock-header{padding:14px 16px 10px;display:flex;align-items:center;gap:12px;}
+.stock-logo{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.stock-meta{flex:1;}
+.stock-name{font-size:14px;font-weight:800;color:var(--text);}
+.stock-ticker{font-size:11px;color:var(--gray);font-weight:600;}
+.stock-price-wrap{text-align:right;}
+.stock-price{font-size:16px;font-weight:900;color:var(--text);}
+.stock-pct{font-size:12px;font-weight:700;margin-top:1px;}
+.stock-pct.up{color:var(--green);}
+.stock-pct.down{color:var(--red2);}
+
+/* mini chart */
+.mini-chart{height:50px;padding:0 12px 4px;position:relative;}
+.mini-chart canvas{width:100%;height:100%;}
+
+.stock-footer{
+  padding:10px 16px 14px;
+  display:flex;gap:6px;
+}
+.invest-btn{
+  flex:1;height:38px;border-radius:10px;border:none;
+  font-family:var(--font);font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .15s;
+}
+.invest-btn:active{transform:scale(.96);}
+.invest-btn.buy{background:var(--red);color:#fff;}
+.invest-btn.maxbuy{background:var(--gold);color:#fff;}
+.invest-btn.sell{background:var(--gray3);color:var(--text);}
+.invest-btn.maxsell{background:var(--green);color:#fff;}
+.invest-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── GAMBLE SCREEN ── */
+#gambleScreen .screen-header{
+  background:var(--white);padding:14px 16px;
+  display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray2);flex-shrink:0;
+}
+.gamble-scroll{flex:1;overflow-y:auto;padding:16px;padding-bottom:100px;}
+.gamble-scroll::-webkit-scrollbar{display:none;}
+
+.gamble-card{
+  background:#fff;border-radius:16px;
+  margin-bottom:12px;overflow:hidden;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+.gamble-head{
+  padding:14px 16px 12px;
+  display:flex;align-items:center;gap:10px;
+}
+.gamble-icon-wrap{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;}
+.gamble-info{flex:1;}
+.gamble-name{font-size:14px;font-weight:800;color:var(--text);}
+.gamble-odds{font-size:11px;color:var(--gray);font-weight:600;margin-top:2px;}
+.gamble-risk{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;align-self:flex-start;}
+.gamble-risk.low{background:#e8f5e9;color:var(--green);}
+.gamble-risk.mid{background:#fff3e0;color:var(--gold);}
+.gamble-risk.high{background:#fce4ec;color:var(--red2);}
+.gamble-risk.ultra{background:#1a1a1a;color:#fff;}
+
+.gamble-body{padding:0 14px 14px;}
+.gamble-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:10px;}
+
+.bet-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.bet-label{font-size:12px;font-weight:700;color:var(--text);width:44px;flex-shrink:0;}
+.bet-presets{display:flex;gap:4px;flex-wrap:wrap;flex:1;}
+.bet-preset{
+  height:28px;padding:0 9px;border-radius:8px;border:1.5px solid var(--gray2);
+  background:#fff;font-family:var(--font);font-size:11px;font-weight:700;
+  color:var(--text2);cursor:pointer;transition:all .12s;
+}
+.bet-preset:active{transform:scale(.92);}
+.bet-preset.sel{border-color:var(--red);background:#fff0f3;color:var(--red);}
+
+.bet-input-wrap{margin-bottom:8px;}
+.bet-input{
+  width:100%;height:46px;border-radius:12px;
+  border:2px solid var(--gray2);
+  font-family:var(--font);font-size:18px;font-weight:900;
+  padding:0 12px;color:var(--text);
+  outline:none;background:#fff;
+  transition:border-color .15s;
+  display:block;
+}
+.bet-input:focus{border-color:var(--red);}
+.bet-go{
+  width:100%;height:48px;border-radius:12px;border:none;
+  background:var(--red);color:#fff;
+  font-family:var(--font);font-size:16px;font-weight:900;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 3px 10px rgba(229,0,43,.35);
+  display:block;
+}
+.bet-go:active{transform:scale(.98);box-shadow:none;}
+.bet-go:disabled{opacity:.4;cursor:not-allowed;box-shadow:none;}
+
+/* ── RESULT OVERLAY ── */
+#resultOverlay{
+  position:absolute;inset:0;z-index:200;
+  background:rgba(0,0,0,.6);
+  display:none;align-items:center;justify-content:center;
+  backdrop-filter:blur(4px);
+}
+#resultOverlay.show{display:flex;}
+.result-card{
+  width:calc(100% - 40px);max-width:320px;
+  background:#fff;border-radius:24px;
+  padding:32px 24px;
+  text-align:center;
+  animation:resultPop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes resultPop{from{transform:scale(.6);opacity:0;}to{transform:none;opacity:1;}}
+.result-emoji{font-size:64px;line-height:1;margin-bottom:12px;
+  animation:emojiSpin .5s cubic-bezier(.34,1.56,.64,1) .1s both;}
+@keyframes emojiSpin{from{transform:rotate(-20deg) scale(0);}to{transform:none;}}
+.result-title{font-size:22px;font-weight:900;margin-bottom:6px;}
+.result-title.win{color:var(--green);}
+.result-title.lose{color:var(--red2);}
+.result-amount{font-size:32px;font-weight:900;margin-bottom:4px;}
+.result-amount.win{color:var(--green);}
+.result-amount.lose{color:var(--red2);}
+.result-balance{font-size:13px;color:var(--gray);margin-bottom:20px;}
+.result-msg{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:20px;
+  background:var(--gray3);border-radius:10px;padding:10px 12px;}
+.result-close{
+  width:100%;height:48px;border-radius:12px;border:none;
+  background:var(--red);color:#fff;
+  font-family:var(--font);font-size:15px;font-weight:800;
+  cursor:pointer;transition:all .15s;
+}
+.result-close:active{transform:scale(.97);}
+
+/* ── MODAL (buy/sell) ── */
+#tradeModal{
+  position:absolute;inset:0;z-index:150;
+  background:rgba(0,0,0,.5);
+  display:none;align-items:flex-end;justify-content:center;
+}
+#tradeModal.show{display:flex;}
+.trade-sheet{
+  width:100%;background:#fff;
+  border-radius:20px 20px 0 0;
+  padding:20px;
+  padding-bottom:calc(20px + var(--safe-bottom));
+  animation:sheetUp .3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes sheetUp{from{transform:translateY(100%);}to{transform:none;}}
+.trade-handle{width:40px;height:4px;background:var(--gray2);border-radius:2px;margin:0 auto 16px;}
+.trade-title{font-size:16px;font-weight:800;margin-bottom:4px;}
+.trade-sub{font-size:12px;color:var(--gray);margin-bottom:16px;}
+.trade-price-row{
+  background:var(--gray3);border-radius:12px;padding:12px 14px;
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:14px;
+}
+.trade-price-label{font-size:12px;color:var(--gray);font-weight:600;}
+.trade-price-val{font-size:16px;font-weight:900;color:var(--text);}
+.trade-qty-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.qty-btn{width:40px;height:40px;border-radius:10px;border:1.5px solid var(--gray2);
+  background:#fff;font-size:20px;cursor:pointer;transition:all .12s;}
+.qty-btn:active{background:var(--gray3);}
+.qty-display{flex:1;text-align:center;font-size:20px;font-weight:900;}
+.trade-total{font-size:13px;color:var(--gray);text-align:center;margin-bottom:16px;}
+.trade-total strong{color:var(--text);font-weight:800;}
+.trade-confirm{
+  width:100%;height:52px;border-radius:14px;border:none;
+  font-family:var(--font);font-size:16px;font-weight:800;color:#fff;
+  cursor:pointer;transition:all .15s;
+}
+.trade-confirm.buy-confirm{background:var(--red);}
+.trade-confirm.sell-confirm{background:var(--green);}
+.trade-confirm:active{transform:scale(.97);}
+.trade-cancel{
+  width:100%;height:44px;border-radius:12px;border:none;
+  background:transparent;font-family:var(--font);font-size:14px;
+  font-weight:700;color:var(--gray);cursor:pointer;margin-top:6px;
+}
+
+/* ── PORTFOLIO SCREEN ── */
+#portfolioScreen .screen-header{
+  background:var(--white);padding:14px 16px;
+  display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray2);flex-shrink:0;
+}
+.port-scroll{flex:1;overflow-y:auto;padding:16px;padding-bottom:100px;}
+.port-scroll::-webkit-scrollbar{display:none;}
+
+.port-total{
+  background:linear-gradient(135deg,var(--red),#ff4569);
+  border-radius:16px;padding:20px;color:#fff;margin-bottom:16px;
+  box-shadow:0 4px 20px rgba(229,0,43,.3);
+}
+.port-total-label{font-size:11px;font-weight:700;opacity:.8;margin-bottom:4px;letter-spacing:.05em;}
+.port-total-val{font-size:36px;font-weight:900;letter-spacing:-1px;margin-bottom:8px;}
+.port-pnl{font-size:13px;font-weight:700;opacity:.9;}
+.port-pnl.up{color:#a5d6a7;}
+.port-pnl.down{color:#ffcdd2;}
+
+.port-item{
+  background:#fff;border-radius:12px;
+  padding:12px 14px;margin-bottom:8px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 1px 6px rgba(0,0,0,.06);
+}
+.port-logo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.port-info{flex:1;}
+.port-name{font-size:13px;font-weight:800;}
+.port-qty{font-size:11px;color:var(--gray);margin-top:1px;}
+.port-right{text-align:right;}
+.port-val{font-size:13px;font-weight:800;}
+.port-pnl-item{font-size:11px;font-weight:700;margin-top:1px;}
+.port-pnl-item.up{color:var(--green);}
+.port-pnl-item.down{color:var(--red2);}
+
+.port-empty{text-align:center;padding:40px 20px;color:var(--gray);}
+.port-empty-icon{font-size:48px;margin-bottom:8px;}
+.port-empty-text{font-size:13px;line-height:1.6;}
+
+/* ── GAMBLE ANIMATION MODAL ── */
+#gambleModal{
+  position:absolute;inset:0;z-index:180;
+  background:rgba(0,0,0,.75);
+  display:none;align-items:flex-end;justify-content:center;
+  backdrop-filter:blur(6px);
+}
+#gambleModal.show{display:flex;}
+.gm-sheet{
+  width:100%;background:#fff;
+  border-radius:24px 24px 0 0;
+  padding:20px 20px 32px;
+  animation:sheetUp .3s cubic-bezier(.4,0,.2,1);
+  max-height:88vh;overflow-y:auto;
+}
+.gm-handle{width:40px;height:4px;background:var(--gray2);border-radius:2px;margin:0 auto 14px;}
+.gm-title{font-size:17px;font-weight:900;text-align:center;margin-bottom:4px;}
+.gm-bet-info{font-size:12px;color:var(--gray);text-align:center;margin-bottom:16px;}
+
+/* ── COIN ── */
+.coin-scene{display:flex;justify-content:center;margin:8px 0 20px;}
+.coin-3d{
+  width:100px;height:100px;
+  position:relative;
+  transform-style:preserve-3d;
+  perspective:400px;
+  cursor:pointer;
+}
+.coin-face{
+  position:absolute;inset:0;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;
+  backface-visibility:hidden;
+  border:4px solid;
+  box-shadow:0 6px 20px rgba(0,0,0,.2);
+}
+.coin-front{background:linear-gradient(135deg,#ffd700,#ffb300);border-color:#e6a000;}
+.coin-back{background:linear-gradient(135deg,#c0c0c0,#9e9e9e);border-color:#757575;transform:rotateY(180deg);}
+@keyframes coinFlip{
+  0%{transform:rotateY(0);}
+  100%{transform:rotateY(1800deg);}
+}
+@keyframes coinFlipHead{
+  0%{transform:rotateY(0);}
+  100%{transform:rotateY(1800deg);}
+}
+@keyframes coinFlipTail{
+  0%{transform:rotateY(0);}
+  100%{transform:rotateY(1980deg);}
+}
+.coin-3d.flipping{animation:coinFlip 1.8s cubic-bezier(.4,0,.2,1) forwards;}
+.coin-choice-row{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+.coin-choice{
+  flex:1;max-width:120px;height:52px;border-radius:14px;
+  border:2px solid var(--gray2);background:#fff;
+  font-family:var(--font);font-size:14px;font-weight:800;
+  cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.coin-choice.sel{border-color:var(--red);background:#fff0f3;color:var(--red);}
+.coin-choice:active{transform:scale(.95);}
+
+/* ── DICE ── */
+.dice-scene{display:flex;justify-content:center;margin:8px 0 16px;}
+.dice-3d{
+  width:90px;height:90px;
+  background:linear-gradient(135deg,#fff,#f0f0f0);
+  border-radius:16px;
+  border:3px solid #ddd;
+  display:flex;align-items:center;justify-content:center;
+  font-size:52px;
+  box-shadow:0 6px 20px rgba(0,0,0,.15),inset 0 2px 4px rgba(255,255,255,.8);
+  transition:transform .1s;
+  position:relative;
+}
+@keyframes diceRoll{
+  0%{transform:rotate(0) scale(1);}
+  10%{transform:rotate(-15deg) scale(1.1);}
+  25%{transform:rotate(20deg) scale(.95);}
+  40%{transform:rotate(-25deg) scale(1.08);}
+  55%{transform:rotate(15deg) scale(.97);}
+  70%{transform:rotate(-10deg) scale(1.03);}
+  85%{transform:rotate(5deg) scale(.99);}
+  100%{transform:rotate(0) scale(1);}
+}
+.dice-3d.rolling{animation:diceRoll 1.6s cubic-bezier(.4,0,.2,1) forwards;}
+.dice-num-select{
+  display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:14px;
+}
+.dice-num{
+  height:40px;border-radius:10px;border:2px solid var(--gray2);
+  background:#fff;font-family:var(--font);font-size:16px;font-weight:900;
+  cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;
+}
+.dice-num.sel{border-color:var(--red);background:#fff0f3;color:var(--red);}
+.dice-num:active{transform:scale(.9);}
+
+/* ── SLOT ── */
+.slot-scene{
+  background:#1a1a2e;border-radius:20px;
+  padding:16px;margin:8px 0 16px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.slot-reels{
+  display:flex;gap:8px;
+}
+.slot-reel{
+  width:72px;height:80px;
+  background:#fff;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;
+  border:3px solid #333;
+  overflow:hidden;
+  position:relative;
+}
+@keyframes reelSpin{
+  0%{transform:translateY(0);}
+  100%{transform:translateY(-400%);}
+}
+.slot-reel-inner{
+  display:flex;flex-direction:column;align-items:center;
+  transition:transform .05s;
+}
+.slot-reel.spinning .slot-reel-inner{animation:reelSpin .12s linear infinite;}
+.slot-lever{
+  width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,var(--red),#c0001e);
+  border:none;font-size:24px;
+  cursor:pointer;box-shadow:0 4px 12px rgba(229,0,43,.4);
+  transition:all .15s;display:flex;align-items:center;justify-content:center;
+}
+.slot-lever:active{transform:scale(.9);}
+.slot-label{font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.1em;}
+
+/* ── HORSE ── */
+.horse-scene{
+  background:linear-gradient(180deg,#87ceeb,#90ee90);
+  border-radius:16px;padding:12px;
+  margin:8px 0 14px;
+  overflow:hidden;position:relative;height:80px;
+}
+.horse-track{display:flex;flex-direction:column;justify-content:center;height:100%;gap:4px;}
+.horse-runner{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:700;
+  position:relative;
+}
+.horse-emoji{font-size:18px;position:absolute;left:0;transition:left 0.05s linear;}
+.horse-name{margin-left:26px;color:#333;}
+.horse-bar{height:6px;border-radius:3px;background:rgba(0,0,0,.1);flex:1;overflow:hidden;}
+.horse-progress{height:100%;border-radius:3px;width:0%;transition:width .08s linear;}
+.horse-select{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:14px;}
+.horse-btn{
+  height:44px;border-radius:12px;border:2px solid var(--gray2);
+  background:#fff;font-family:var(--font);font-size:12px;font-weight:800;
+  cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;gap:4px;
+}
+.horse-btn.sel{border-color:var(--red);background:#fff0f3;color:var(--red);}
+.horse-btn:active{transform:scale(.95);}
+
+/* ── LOTTERY ── */
+.lottery-scene{
+  display:flex;flex-direction:column;align-items:center;
+  margin:8px 0 16px;gap:12px;
+}
+.lottery-ball-wrap{display:flex;gap:8px;justify-content:center;}
+.lottery-ball{
+  width:48px;height:48px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:900;color:#fff;
+  background:#ccc;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 3px 10px rgba(0,0,0,.2);
+}
+@keyframes ballDrop{
+  0%{transform:translateY(-60px) scale(0);opacity:0;}
+  70%{transform:translateY(4px) scale(1.1);}
+  100%{transform:translateY(0) scale(1);opacity:1;}
+}
+.lottery-ball.reveal{animation:ballDrop .5s cubic-bezier(.34,1.56,.64,1) forwards var(--del);}
+.lottery-ticket{
+  background:linear-gradient(135deg,#fff8dc,#fffde7);
+  border:2px dashed var(--gold);
+  border-radius:16px;padding:12px 20px;
+  text-align:center;font-size:24px;letter-spacing:4px;
+  font-weight:900;color:var(--gold);
+  min-width:200px;
+}
+.lottery-scratch{
+  font-size:11px;color:var(--gray);letter-spacing:.1em;margin-top:4px;
+}
+
+/* shared gm bottom */
+.gm-go{
+  width:100%;height:52px;border-radius:14px;border:none;
+  background:var(--red);color:#fff;
+  font-family:var(--font);font-size:16px;font-weight:900;
+  cursor:pointer;transition:all .15s;margin-top:4px;
+}
+.gm-go:active{transform:scale(.97);}
+.gm-go:disabled{opacity:.4;cursor:not-allowed;}
+.gm-cancel{
+  width:100%;height:42px;border-radius:12px;border:none;
+  background:transparent;font-family:var(--font);font-size:14px;font-weight:700;
+  color:var(--gray);cursor:pointer;margin-top:6px;
+}
+.gm-choice-label{font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;text-align:center;}
+
+/* ── TOAST ── */
+#toast{
+  position:absolute;bottom:100px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(30,30,30,.9);color:#fff;
+  border-radius:20px;padding:8px 18px;
+  font-size:12px;font-weight:700;white-space:nowrap;
+  opacity:0;transition:all .3s;pointer-events:none;z-index:300;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── FLASH ── */
+#flash{
+  position:absolute;inset:0;z-index:250;pointer-events:none;opacity:0;
+  transition:opacity .1s;
+}
+#flash.green{background:rgba(0,200,83,.15);}
+#flash.red{background:rgba(229,0,43,.15);}
+
+/* ── ONBOARDING ── */
+#onboarding{
+  position:absolute;inset:0;z-index:400;
+  background:var(--red);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:40px 30px;text-align:center;
+  transition:opacity .5s,transform .5s;
+}
+#onboarding.hide{opacity:0;transform:scale(.95);pointer-events:none;}
+.onboard-logo{font-size:48px;font-weight:900;color:#fff;letter-spacing:-1px;margin-bottom:8px;}
+.onboard-sub{font-size:14px;color:rgba(255,255,255,.7);margin-bottom:48px;}
+.onboard-card{
+  background:#fff;border-radius:20px;padding:24px;width:100%;margin-bottom:32px;
+}
+.onboard-card-icon{font-size:40px;margin-bottom:10px;}
+.onboard-card-title{font-size:18px;font-weight:900;color:var(--text);margin-bottom:6px;}
+.onboard-card-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.onboard-balance{font-size:32px;font-weight:900;color:var(--red);margin:10px 0;}
+.onboard-start{
+  width:100%;height:54px;border-radius:14px;border:none;
+  background:#fff;color:var(--red);
+  font-family:var(--font);font-size:17px;font-weight:900;
+  cursor:pointer;transition:all .15s;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+.onboard-start:active{transform:scale(.97);}
+
+/* number animation */
+@keyframes numPop{0%{transform:scale(1);}50%{transform:scale(1.15);}100%{transform:scale(1);}}
+.num-pop{animation:numPop .3s ease;}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="statusbar-left">9:41</div>
+    <div class="statusbar-right">
+      <span>📶</span><span>🔋</span>
+    </div>
+  </div>
+
+  <!-- FLASH -->
+  <div id="flash"></div>
+
+  <!-- ══ ONBOARDING ══ -->
+  <div id="onboarding">
+    <div class="onboard-logo">PayPay</div>
+    <div class="onboard-sub">あなたの運命を試す時</div>
+    <div class="onboard-card">
+      <div class="onboard-card-icon">💸</div>
+      <div class="onboard-card-title">お金がありません</div>
+      <div class="onboard-card-text">あなたの残高は…</div>
+      <div class="onboard-balance" id="onboardBalance">¥500</div>
+      <div class="onboard-card-text" style="color:var(--red);font-weight:700;margin-top:4px;">今すぐ増やしましょう！</div>
+    </div>
+    <button class="onboard-start" onclick="startApp()">さっそく始める →</button>
+  </div>
+
+  <!-- ══ HOME SCREEN ══ -->
+  <div class="screen active" id="homeScreen">
+    <div class="home-header">
+      <div class="home-header-top">
+        <div class="app-logo">PayPay</div>
+        <div class="header-icons">
+          <div class="header-icon" onclick="openAdmin()">⚙️</div>
+          <div class="header-icon" onclick="openTitleModal()">👤</div>
+        </div>
+      </div>
+    </div>
+    <div class="home-scroll">
+      <!-- balance card -->
+      <div class="balance-card">
+        <div class="balance-label">残高</div>
+        <div class="balance-amount">
+          <span class="balance-yen">¥</span>
+          <span id="homeBalance">500</span>
+        </div>
+        <div class="balance-change" id="balanceChange">
+          <span>± ¥0 (本日)</span>
+        </div>
+        <div id="equippedTitleDisplay" style="margin-top:6px;display:none"></div>
+      </div>
+
+      <!-- alert -->
+      <div class="alert-banner" id="alertBanner" onclick="navTo('gamble')">
+        <div class="alert-icon">⚡</div>
+        <div class="alert-text-wrap">
+          <div class="alert-title">残高が少なすぎます！</div>
+          <div class="alert-sub">ギャンブル・投資で今すぐ増やしましょう。夢を諦めるな！</div>
+        </div>
+        <div class="alert-arrow">›</div>
+      </div>
+
+      <!-- S2解放バナー（1億円達成で出現） -->
+      <div id="s2Banner" style="display:none;margin:10px 16px 0;border-radius:14px;overflow:hidden;cursor:pointer;animation:s2pulse 2s ease-in-out infinite;" onclick="goToS2()">
+        <div style="background:linear-gradient(135deg,#ffd700,#ff9800,#ff006e,#8b5cf6);padding:14px 16px;display:flex;align-items:center;gap:12px;">
+          <div style="font-size:30px;filter:drop-shadow(0 0 8px rgba(255,215,0,.9))">🚀</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:900;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3);">SEASON 2 へ進む！</div>
+            <div style="font-size:10px;color:rgba(255,255,255,.85);margin-top:2px;">¥1億達成！次のステージが解放された →</div>
+          </div>
+          <div style="font-size:20px;color:#fff;">›</div>
+        </div>
+      </div>
+      <style>@keyframes s2pulse{0%,100%{box-shadow:0 0 12px rgba(255,215,0,.5);}50%{box-shadow:0 0 24px rgba(255,0,110,.6);}}</style>
+
+      <!-- 借金救済 -->
+      <div class="debt-banner" id="debtBanner" style="display:none" onclick="handleDebtBannerClick()">
+        <div class="debt-icon" id="debtIcon">🏦</div>
+        <div class="debt-text-wrap">
+          <div class="debt-title" id="debtTitle">緊急融資を受けますか？</div>
+          <div class="debt-sub" id="debtSub">¥1,000 借りる（残高¥100以下で利用可）</div>
+        </div>
+        <div class="debt-arrow">›</div>
+      </div>
+
+      <!-- quick actions -->
+      <div class="quick-actions">
+        <div class="qa-btn" onclick="navTo('invest')">
+          <div class="qa-icon" style="background:linear-gradient(135deg,#ff6b6b,#ee5a24)">📈</div>
+          <div class="qa-label">株式投資</div>
+        </div>
+        <div class="qa-btn" onclick="navTo('gamble')">
+          <div class="qa-icon" style="background:linear-gradient(135deg,#a29bfe,#6c5ce7)">🎲</div>
+          <div class="qa-label">ギャンブル</div>
+        </div>
+        <div class="qa-btn" onclick="navTo('portfolio')">
+          <div class="qa-icon" style="background:linear-gradient(135deg,#55efc4,#00b894)">💼</div>
+          <div class="qa-label">ポートフォリオ</div>
+        </div>
+        <div class="qa-btn" onclick="handleDebtBannerClick()">
+          <div class="qa-icon" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">🏦</div>
+          <div class="qa-label">借金する</div>
+        </div>
+      </div>
+
+      <!-- market overview -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📊 マーケット速報</div>
+          <div class="section-more" onclick="navTo('invest')">もっと見る ›</div>
+        </div>
+        <div id="marketSummary"></div>
+      </div>
+
+      <!-- history -->
+      <div class="section">
+        <div class="section-header">
+          <div class="section-title">📋 取引履歴</div>
+        </div>
+        <div id="historyList">
+          <div style="text-align:center;padding:20px;color:var(--gray);font-size:12px;">まだ取引がありません</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INVEST SCREEN ══ -->
+  <div class="screen" id="investScreen">
+    <div class="screen-header">
+      <button class="back-btn" onclick="navBack()">‹</button>
+      <div class="screen-title">📈 株式・仮想通貨</div>
+    </div>
+    <div class="invest-scroll" id="stockList"></div>
+  </div>
+
+  <!-- ══ GAMBLE SCREEN ══ -->
+  <div class="screen" id="gambleScreen">
+    <div class="screen-header">
+      <button class="back-btn" onclick="navBack()">‹</button>
+      <div class="screen-title">🎲 ギャンブル</div>
+    </div>
+    <div class="gamble-scroll" id="gambleList"></div>
+  </div>
+
+  <!-- ══ PORTFOLIO SCREEN ══ -->
+  <div class="screen" id="portfolioScreen">
+    <div class="screen-header">
+      <button class="back-btn" onclick="navBack()">‹</button>
+      <div class="screen-title">💼 ポートフォリオ</div>
+    </div>
+    <div class="port-scroll" id="portContent"></div>
+  </div>
+
+  <!-- ══ VIP SCREEN ══ -->
+  <div class="screen" id="vipScreen">
+    <div class="screen-header">
+      <button class="back-btn" onclick="navBack()">‹</button>
+      <div class="screen-title">👑 VIP・称号</div>
+    </div>
+    <div class="vip-page-scroll" id="vipContent"></div>
+  </div>
+
+  <!-- ══ BOTTOM NAV ══ -->
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="navTo('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">ホーム</div>
+    </div>
+    <div class="nav-item" id="nav-invest" onclick="navTo('invest')">
+      <div class="nav-icon">📈</div>
+      <div class="nav-label">投資</div>
+    </div>
+    <div class="nav-item" id="nav-gamble" onclick="navTo('gamble')">
+      <div class="nav-icon">🎲</div>
+      <div class="nav-label">ギャンブル</div>
+    </div>
+    <div class="nav-item" id="nav-portfolio" onclick="navTo('portfolio')">
+      <div class="nav-icon">💼</div>
+      <div class="nav-label">資産</div>
+    </div>
+    <div class="nav-item" id="nav-vip" onclick="navTo('vip')">
+      <div class="nav-icon">👑</div>
+      <div class="nav-label">VIP</div>
+    </div>
+  </div>
+
+  <!-- GAMBLE ANIMATION MODAL -->
+  <div id="gambleModal">
+    <div class="gm-sheet" id="gmSheet"></div>
+  </div>
+
+  <!-- TRADE MODAL -->
+  <div id="tradeModal">
+    <div class="trade-sheet">
+      <div class="trade-handle"></div>
+      <div class="trade-title" id="tradeTitle">購入</div>
+      <div class="trade-sub" id="tradeSub">株価 ¥1,000</div>
+      <div class="trade-price-row">
+        <div class="trade-price-label" id="tradePriceLabel">現在値</div>
+        <div class="trade-price-val" id="tradePriceVal">¥0</div>
+      </div>
+      <div class="trade-qty-row">
+        <button class="qty-btn" id="qtyMinus">－</button>
+        <div class="qty-display" id="qtyDisplay">1</div>
+        <button class="qty-btn" id="qtyPlus">＋</button>
+      </div>
+      <div class="trade-total" id="tradeTotal">合計 <strong>¥0</strong></div>
+      <button class="trade-confirm" id="tradeConfirm">確定</button>
+      <button class="trade-cancel" onclick="closeTradeModal()">キャンセル</button>
+    </div>
+  </div>
+
+  <!-- RESULT OVERLAY -->
+  <div id="resultOverlay">
+    <div class="result-card">
+      <div class="result-emoji" id="resultEmoji">🎉</div>
+      <div class="result-title" id="resultTitle">勝利！</div>
+      <div class="result-amount" id="resultAmount">+¥1,000</div>
+      <div class="result-balance" id="resultBalance">残高: ¥1,500</div>
+      <div class="result-msg" id="resultMsg">やった！</div>
+      <button class="result-close" onclick="closeResult()">閉じる</button>
+    </div>
+  </div>
+
+  <!-- TITLE MODAL -->
+  <div id="titleModal" style="position:absolute;inset:0;z-index:160;background:rgba(0,0,0,.6);display:none;align-items:flex-end;backdrop-filter:blur(4px);">
+    <div style="width:100%;background:#fff;border-radius:24px 24px 0 0;padding:20px 16px 36px;max-height:80vh;display:flex;flex-direction:column;">
+      <div style="width:40px;height:4px;background:var(--gray2);border-radius:2px;margin:0 auto 14px;"></div>
+      <div style="font-size:16px;font-weight:800;margin-bottom:4px;">🏆 称号を選択</div>
+      <div style="font-size:11px;color:var(--gray);margin-bottom:14px;" id="titleModalSub">解放済み: 0 / 21</div>
+      <div id="titleModalList" style="overflow-y:auto;flex:1;"></div>
+      <button id="titleModalClose" style="width:100%;height:44px;border-radius:12px;border:none;background:var(--gray3);font-family:var(--font);font-size:14px;font-weight:700;color:var(--gray);cursor:pointer;margin-top:12px;flex-shrink:0;">閉じる</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="adminPanel">
+    <div class="admin-sheet">
+      <div class="admin-handle"></div>
+      <div id="adminAuthView">
+        <div class="admin-title">🔐 ADMIN</div>
+        <div class="admin-sub">パスワードを入力</div>
+        <input class="adm-input" id="admPwInput" type="password" placeholder="パスワード" style="width:100%;margin-bottom:8px;letter-spacing:.2em;font-size:18px;height:48px;border-radius:12px">
+        <button class="adm-full-btn" id="adm-auth">ログイン →</button>
+        <div class="adm-msg" id="admAuthMsg"></div>
+        <button class="adm-close" id="adm-close-auth">閉じる</button>
+      </div>
+      <div id="adminMainView" style="display:none">
+        <div class="admin-title">⚠ ADMIN</div>
+        <div class="admin-sub">DEVELOPER ACCESS ONLY</div>
+        <button class="adm-full-btn" id="adm-addmoney">💴 +¥100,000 追加</button>
+        <button class="adm-full-btn" id="adm-maxmoney">💰 残高を¥999,999にする</button>
+        <button class="adm-full-btn" id="adm-vip">👑 VIPを付与する</button>
+        <button class="adm-full-btn" id="adm-godmode">⚡ 絶対勝利モード ON/OFF</button>
+        <button class="adm-full-btn" id="adm-alltitles">🏆 全称号を解放</button>
+        <button class="adm-full-btn" id="adm-broke">💸 残高をゼロにする</button>
+        <button class="adm-full-btn danger" id="adm-reset">🗑 全データをリセット</button>
+        <div style="font-size:10px;color:#555;letter-spacing:.1em;margin:10px 0 5px">残高を直接設定</div>
+        <div class="adm-row">
+          <input class="adm-input" id="admBalInput" type="number" placeholder="例: 50000" min="0" style="flex:1">
+          <button class="adm-apply" id="adm-setbal">SET</button>
+        </div>
+        <div class="adm-msg" id="admMsg"></div>
+        <button class="adm-close" id="adm-close">✕ 閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="godModeChip">⚡ 絶対勝利中</div>
+  <div id="toast"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+const SAVE_KEY = 'paypay_v1';
+let state = {
+  balance: 500,
+  startBalance: 500,
+  todayStart: 500,
+  history: [],
+  portfolio: {},
+  debt: 0,
+  debtBorrowedAt: null,
+  debtCooldownUntil: null,
+  debtBlacklistUntil: null,
+  // 統計
+  stats: {
+    gambleTotal: 0,    // ギャンブル総回数
+    gambleWins: 0,     // 勝利回数
+    gambleLoses: 0,    // 敗北回数
+    totalEarned: 0,    // 累計獲得金額
+    totalLost: 0,      // 累計損失金額
+    maxBalance: 500,   // 最高残高
+    bankruptCount: 0,  // 破産回数
+    stockBuys: 0,      // 株購入回数
+  },
+  // VIP
+  vip: false,
+  // 称号
+  unlockedTitles: [],
+  equippedTitle: null,
+  // 絶対勝利モード（アドミン）
+  godMode: false,
+};
+
+// ═══════════════════════════════════════════
+// STOCKS DATA
+// ═══════════════════════════════════════════
+const STOCKS = [
+  { id:'poke', name:'ポケテック', ticker:'PKTK', emoji:'🐣', color:'#ff6b6b',
+    price:1200, vol:.04, trend:.001 },
+  { id:'yume', name:'夢カンパニー', ticker:'YUME', emoji:'🌙', color:'#a29bfe',
+    price:3800, vol:.07, trend:-.002 },
+  { id:'niku', name:'肉バーガーHD', ticker:'NIKU', emoji:'🍔', color:'#fdcb6e',
+    price:580, vol:.03, trend:.0005 },
+  { id:'koin', name:'ポケコイン', ticker:'PKC', emoji:'🪙', color:'#ffd32a',
+    price:88, vol:.18, trend:.005 },
+  { id:'rkt', name:'ロケット宇宙', ticker:'RKT', emoji:'🚀', color:'#00cec9',
+    price:15600, vol:.12, trend:.003 },
+  { id:'saru', name:'サル電機', ticker:'SARU', emoji:'🐒', color:'#e17055',
+    price:420, vol:.05, trend:-.001 },
+];
+
+let stockPrices = {};
+let stockHistory = {}; // id -> [price list for mini chart]
+STOCKS.forEach(s => {
+  stockPrices[s.id] = s.price;
+  stockHistory[s.id] = [s.price];
+});
+
+// ═══════════════════════════════════════════
+// GAMBLES DATA
+// ═══════════════════════════════════════════
+const GAMBLES = [
+  {
+    id:'coin', name:'コインフリップ', emoji:'🪙', risk:'low', riskLabel:'低リスク',
+    desc:'表か裏か。50%の確率で2倍。シンプルだけど侮れない。',
+    minBet:10, odds:2.0,
+    winChance: .48,
+    winMsgs:['コインが輝いた！','幸運の女神が微笑む✨','さすが！'],
+    loseMsgs:['惜しかった…','次は当たる！','ツキがなかっただけ'],
+  },
+  {
+    id:'dice', name:'ダイスロール', emoji:'🎲', risk:'mid', riskLabel:'中リスク',
+    desc:'1〜6を予想。当たれば5倍。はずれはゼロ。',
+    minBet:50, odds:5.0,
+    winChance: .16,
+    winMsgs:['天才か！？','ダイスが味方した🎲','信じられない！'],
+    loseMsgs:['あと少しだったのに…','運命は残酷だ','次こそ！'],
+  },
+  {
+    id:'slot', name:'スロットマシン', emoji:'🎰', risk:'mid', riskLabel:'中リスク',
+    desc:'3つ揃えば10倍！2つで1.5倍。全部外れはゼロ。',
+    minBet:100, odds:10.0,
+    winChance: .09,
+    winMsgs:['777！！！🎰🎰🎰','ジャックポット！！','これが本物のツキ！'],
+    loseMsgs:['あと一個で揃ったのに…','スロットは深い','また来い！'],
+    halfWinChance:.25, halfOdds:1.5,
+  },
+  {
+    id:'horse', name:'競馬', emoji:'🐎', risk:'high', riskLabel:'高リスク',
+    desc:'12頭立て。本命は3倍、穴馬は20倍。どれに賭ける？',
+    minBet:200, odds:3.0,
+    winChance: .3,
+    darkHorseOdds: 20, darkHorseChance: .08,
+    winMsgs:['馬が走った！！🐎','本命的中！','よっしゃ！！'],
+    loseMsgs:['馬が転んだ…','次のレースに賭けろ！','惜しかったぁ'],
+  },
+  {
+    id:'lottery', name:'宝くじ', emoji:'🎟️', risk:'ultra', riskLabel:'超高リスク',
+    desc:'1/100の確率で50倍！夢を買う一枚。',
+    minBet:500, odds:50.0,
+    winChance: .01,
+    winMsgs:['神！！！🎊🎊🎊','宝くじ当選！人生変わった！','これは夢か!?'],
+    loseMsgs:['まあ宝くじだし…','夢を買ったんだ','1%の奇跡を信じろ！'],
+  },
+];
+
+// ═══════════════════════════════════════════
+// SAVE/LOAD
+// ═══════════════════════════════════════════
+function saveState(){
+  try{ localStorage.setItem(SAVE_KEY, JSON.stringify(state)); }catch(e){}
+}
+function loadState(){
+  try{
+    const d = JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
+    if(d){ state = d; }
+  }catch(e){}
+}
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+let currentScreen = 'home';
+const screens = ['home','invest','gamble','portfolio','vip'];
+
+function navTo(id){
+  if(currentScreen === id) return;
+  screens.forEach(s=>{
+    document.getElementById(s+'Screen').classList.remove('active');
+  });
+  document.getElementById(id+'Screen').classList.add('active');
+  currentScreen = id;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+id);
+  if(navEl) navEl.classList.add('active');
+  if(id==='invest') renderInvest();
+  if(id==='gamble') renderGamble();
+  if(id==='portfolio') renderPortfolio();
+  if(id==='home') renderHome();
+  if(id==='vip') renderVipPage();
+}
+function navBack(){ navTo('home'); }
+
+// ═══════════════════════════════════════════
+// MARKET SIMULATION
+// ═══════════════════════════════════════════
+function tickMarket(){
+  STOCKS.forEach(s => {
+    const prev = stockPrices[s.id];
+    const change = prev * (s.trend + (Math.random()-.5)*2*s.vol);
+    let next = Math.max(1, Math.round(prev + change));
+    stockPrices[s.id] = next;
+    const hist = stockHistory[s.id];
+    hist.push(next);
+    if(hist.length > 30) hist.shift();
+  });
+  // refresh if on invest screen
+  if(currentScreen==='invest') renderInvest();
+  if(currentScreen==='home') updateMarketSummary();
+  updateHomeBalance();
+}
+setInterval(tickMarket, 2000);
+
+// ═══════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════
+function renderHome(){
+  updateHomeBalance();
+  updateMarketSummary();
+  renderHistory();
+}
+function updateHomeBalance(){
+  const totalVal = getTotalAssetValue();
+  const el = document.getElementById('homeBalance');
+  if(el) el.textContent = fmt(totalVal);
+  const diff = totalVal - state.todayStart;
+  const chgEl = document.getElementById('balanceChange');
+  if(chgEl){
+    chgEl.className = 'balance-change ' + (diff>=0?'up':'down');
+    chgEl.innerHTML = `<span>${diff>=0?'▲':'▼'} ¥${fmt(Math.abs(diff))} (本日)</span>`;
+  }
+  // 借金バナー
+  const debtBanner = document.getElementById('debtBanner');
+  if(debtBanner){
+    const now = Date.now();
+    const titleEl = document.getElementById('debtTitle');
+    const subEl   = document.getElementById('debtSub');
+    const iconEl  = document.getElementById('debtIcon');
+
+    if(state.debtBlacklistUntil && now < state.debtBlacklistUntil){
+      // ブラックリスト中
+      const rem = msToTime(state.debtBlacklistUntil - now);
+      debtBanner.style.display = 'flex';
+      debtBanner.style.borderColor = '#f44336';
+      iconEl.textContent  = '🚫';
+      titleEl.textContent = 'ブラックリスト中！';
+      subEl.textContent   = `返済期限切れ。解除まで ${rem}`;
+      titleEl.style.color = '#c62828';
+      subEl.style.color   = '#f44336';
+    } else if(state.debt > 0){
+      // 借金返済待ち
+      const elapsed = now - state.debtBorrowedAt;
+      const rem = msToTime(Math.max(0, DEBT_REPAY_MS - elapsed));
+      debtBanner.style.display = 'flex';
+      debtBanner.style.borderColor = '#ff9800';
+      iconEl.textContent  = '⚠️';
+      titleEl.textContent = `借金返済期限: 残り ${rem}`;
+      subEl.textContent   = `¥${fmt(state.debt)} をタップして今すぐ返済！`;
+      titleEl.style.color = '#e65100';
+      subEl.style.color   = '#ff9800';
+    } else if(state.debtCooldownUntil && now < state.debtCooldownUntil){
+      // クールタイム中
+      const rem = msToTime(state.debtCooldownUntil - now);
+      debtBanner.style.display = 'flex';
+      debtBanner.style.borderColor = '#9e9e9e';
+      iconEl.textContent  = '⏳';
+      titleEl.textContent = `借金クールタイム中`;
+      subEl.textContent   = `次に借りられるまで ${rem}`;
+      titleEl.style.color = '#555';
+      subEl.style.color   = '#888';
+    } else if(state.balance <= 100){
+      // 借りられる
+      debtBanner.style.display = 'flex';
+      debtBanner.style.borderColor = '#1565c0';
+      iconEl.textContent  = '🏦';
+      titleEl.textContent = '緊急融資を受けますか？';
+      subEl.textContent   = `¥${fmt(DEBT_AMOUNT)} 借りる（1時間以内に返済必須）`;
+      titleEl.style.color = '#0d47a1';
+      subEl.style.color   = '#1565c0';
+    } else {
+      debtBanner.style.display = 'none';
+    }
+  }
+
+  // alert banner
+  const banner = document.getElementById('alertBanner');
+  if(banner){
+    if(totalVal <= 0){
+      banner.querySelector('.alert-title').textContent = '💀 完全破産！';
+      banner.querySelector('.alert-sub').textContent = '借金して一発逆転を狙うしかない！';
+    } else if(totalVal < 200){
+      banner.querySelector('.alert-title').textContent = '😱 もう残高がヤバい！';
+      banner.querySelector('.alert-sub').textContent = '¥'+fmt(totalVal)+'しかない。一発逆転を狙え！';
+    } else if(totalVal > 10000){
+      banner.querySelector('.alert-title').textContent = '🤑 調子いいじゃん！';
+      banner.querySelector('.alert-sub').textContent = 'このまま増やし続けろ。まだまだいけるぞ！';
+    } else {
+      banner.querySelector('.alert-title').textContent = '⚡ もっと増やしませんか？';
+      banner.querySelector('.alert-sub').textContent = 'ギャンブル・投資でドンドン稼いじゃおう！';
+    }
+  }
+  // 最高残高更新
+  if(totalVal > (state.stats.maxBalance||0)){
+    state.stats.maxBalance = totalVal;
+  }
+  // S2解放バナー（1億円以上で表示）
+  const s2b = document.getElementById('s2Banner');
+  if(s2b) s2b.style.display = totalVal >= 100000000 ? 'block' : 'none';
+
+  // 装備中称号表示
+  const titleDisp = document.getElementById('equippedTitleDisplay');
+  if(titleDisp){
+    if(state.equippedTitle){
+      const t = TITLES.find(x=>x.id===state.equippedTitle);
+      if(t){
+        const cls = TIER_CLASS[t.tier]||'tb tb-1';
+        titleDisp.innerHTML = `<span class="${cls}">${t.icon} ${t.name}</span>`;
+        titleDisp.style.display = 'block';
+      }
+    } else {
+      titleDisp.style.display = 'none';
+    }
+  }
+}
+function updateMarketSummary(){
+  const el = document.getElementById('marketSummary');
+  if(!el) return;
+  el.innerHTML = STOCKS.slice(0,3).map(s=>{
+    const price = stockPrices[s.id];
+    const hist = stockHistory[s.id];
+    const open = hist[0];
+    const pct = ((price-open)/open*100).toFixed(2);
+    const isUp = price >= open;
+    return `<div class="asset-row" onclick="navTo('invest')">
+      <div class="asset-emoji">${s.emoji}</div>
+      <div class="asset-info">
+        <div class="asset-name">${s.name}</div>
+        <div class="asset-sub">${s.ticker}</div>
+      </div>
+      <div class="asset-right">
+        <div class="asset-val">¥${fmt(price)}</div>
+        <div class="asset-chg ${isUp?'up':'down'}">${isUp?'▲':'▼'}${Math.abs(pct)}%</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderHistory(){
+  const el = document.getElementById('historyList');
+  if(state.history.length===0){
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-size:12px;">まだ取引がありません</div>';
+    return;
+  }
+  el.innerHTML = [...state.history].reverse().slice(0,8).map(h=>`
+    <div class="hist-item">
+      <div class="hist-icon">${h.icon}</div>
+      <div class="hist-info">
+        <div class="hist-name">${h.name}</div>
+        <div class="hist-date">${h.date}</div>
+      </div>
+      <div class="hist-amt ${h.amount>=0?'plus':'minus'}">${h.amount>=0?'+':''} ¥${fmt(Math.abs(h.amount))}</div>
+    </div>`).join('');
+}
+function getTotalAssetValue(){
+  let v = state.balance;
+  Object.entries(state.portfolio).forEach(([id,pos])=>{
+    v += stockPrices[id] * pos.qty;
+  });
+  return Math.round(v);
+}
+
+// ═══════════════════════════════════════════
+// INVEST SCREEN
+// ═══════════════════════════════════════════
+function renderInvest(){
+  const el = document.getElementById('stockList');
+  el.innerHTML = STOCKS.map(s=>{
+    const price = stockPrices[s.id];
+    const hist = stockHistory[s.id];
+    const open = hist[0]||s.price;
+    const pct = ((price-open)/open*100).toFixed(2);
+    const isUp = price >= open;
+    const owned = state.portfolio[s.id];
+    return `<div class="stock-card">
+      <div class="stock-header">
+        <div class="stock-logo" style="background:${s.color}22">${s.emoji}</div>
+        <div class="stock-meta">
+          <div class="stock-name">${s.name}</div>
+          <div class="stock-ticker">${s.ticker}${owned?` · 保有${owned.qty}株`:''}</div>
+        </div>
+        <div class="stock-price-wrap">
+          <div class="stock-price">¥${fmt(price)}</div>
+          <div class="stock-pct ${isUp?'up':'down'}">${isUp?'▲':'▼'}${Math.abs(pct)}%</div>
+        </div>
+      </div>
+      <div class="mini-chart">
+        <canvas id="chart-${s.id}" height="50"></canvas>
+      </div>
+      <div class="stock-footer">
+        <button class="invest-btn buy" onclick="openTrade('${s.id}','buy')">買う</button>
+        <button class="invest-btn maxbuy" onclick="buyMaxStock('${s.id}')">全力買い${state.vip?' 💠':''}</button>
+        <button class="invest-btn sell" onclick="openTrade('${s.id}','sell')" ${!owned||owned.qty<=0?'disabled':''}>売る</button>
+        <button class="invest-btn maxsell" onclick="sellMaxStock('${s.id}')" ${!owned||owned.qty<=0?'disabled':''}>全力売り</button>
+      </div>
+    </div>`;
+  }).join('');
+  // draw charts
+  STOCKS.forEach(s=>drawMiniChart(s));
+}
+
+function drawMiniChart(s){
+  const canvas = document.getElementById('chart-'+s.id);
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.offsetWidth; const H = canvas.offsetHeight;
+  canvas.width = W*2; canvas.height = H*2; ctx.scale(2,2);
+  const hist = stockHistory[s.id];
+  if(hist.length < 2){ ctx.fillStyle='#eee';ctx.fillRect(0,0,W,H);return; }
+  const min=Math.min(...hist), max=Math.max(...hist);
+  const range=max-min||1;
+  const isUp = hist[hist.length-1] >= hist[0];
+  const col = isUp?'#00b050':'#e5002b';
+
+  ctx.clearRect(0,0,W,H);
+  // fill
+  ctx.beginPath();
+  hist.forEach((v,i)=>{
+    const x=i/(hist.length-1)*W, y=H-(v-min)/range*(H-4)-2;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+  ctx.fillStyle=col+'22';ctx.fill();
+  // line
+  ctx.beginPath();
+  hist.forEach((v,i)=>{
+    const x=i/(hist.length-1)*W, y=H-(v-min)/range*(H-4)-2;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle=col;ctx.lineWidth=1.5;ctx.stroke();
+}
+
+// TRADE MODAL
+let tradeStock=null, tradeType=null, tradeQty=1;
+function openTrade(stockId, type){
+  tradeStock = STOCKS.find(s=>s.id===stockId);
+  tradeType = type;
+  tradeQty = 1;
+  const price = stockPrices[stockId];
+  const owned = state.portfolio[stockId];
+  document.getElementById('tradeTitle').textContent = type==='buy'?`${tradeStock.emoji} 購入`:`${tradeStock.emoji} 売却`;
+  document.getElementById('tradeSub').textContent = tradeStock.name;
+  document.getElementById('tradePriceLabel').textContent = '現在株価';
+  document.getElementById('tradePriceVal').textContent = '¥'+fmt(price);
+  document.getElementById('tradeConfirm').className = 'trade-confirm '+(type==='buy'?'buy-confirm':'sell-confirm');
+  document.getElementById('tradeConfirm').textContent = type==='buy'?'購入する':'売却する';
+  updateTradeUI();
+  document.getElementById('tradeModal').classList.add('show');
+}
+function closeTradeModal(){ document.getElementById('tradeModal').classList.remove('show'); }
+function updateTradeUI(){
+  const price = stockPrices[tradeStock.id];
+  document.getElementById('qtyDisplay').textContent = tradeQty;
+  const total = price * tradeQty;
+  document.getElementById('tradeTotal').innerHTML = `合計 <strong>¥${fmt(total)}</strong>`;
+  document.getElementById('tradeConfirm').onclick = ()=>executeTrade();
+}
+document.getElementById('qtyMinus').addEventListener('click',()=>{ if(tradeQty>1){tradeQty--;updateTradeUI();} });
+document.getElementById('qtyPlus').addEventListener('click',()=>{ tradeQty++;updateTradeUI(); });
+
+function executeTrade(){
+  const price = stockPrices[tradeStock.id];
+  const total = price * tradeQty;
+  if(tradeType==='buy'){
+    if(total > state.balance){ showToastMsg('残高が足りません💸'); return; }
+    state.balance -= total;
+    if(!state.portfolio[tradeStock.id]) state.portfolio[tradeStock.id]={qty:0,avgCost:0};
+    const pos = state.portfolio[tradeStock.id];
+    const newAvg = (pos.avgCost*pos.qty + price*tradeQty)/(pos.qty+tradeQty);
+    pos.qty += tradeQty;
+    pos.avgCost = newAvg;
+    addHistory(tradeStock.emoji,'株式購入: '+tradeStock.name,-total);
+    showFlash('red');
+    showToastMsg(`${tradeStock.emoji} ${tradeStock.name} ×${tradeQty}株 購入！`);
+  } else {
+    const pos = state.portfolio[tradeStock.id];
+    if(!pos||pos.qty<tradeQty){ showToastMsg('保有株が足りません'); return; }
+    const gain = total;
+    const cost = pos.avgCost * tradeQty;
+    const pnl = gain - cost;
+    pos.qty -= tradeQty;
+    if(pos.qty<=0) delete state.portfolio[tradeStock.id];
+    state.balance += gain;
+    addHistory(tradeStock.emoji,'株式売却: '+tradeStock.name,gain);
+    showFlash(pnl>=0?'green':'red');
+    showResult(
+      pnl>=0,
+      pnl>=0?'💹 売却益！':'📉 売却損…',
+      pnl>=0?`+¥${fmt(pnl)}`:`-¥${fmt(Math.abs(pnl))}`,
+      pnl>=0?`${tradeStock.name}を上手く売り抜けた！`:`${tradeStock.name}を損切り…次はリベンジ！`
+    );
+  }
+  closeTradeModal();
+  saveState();
+  updateHomeBalance();
+  if(currentScreen==='invest') renderInvest();
+}
+
+// ═══════════════════════════════════════════
+// GAMBLE SCREEN
+// ═══════════════════════════════════════════
+function renderGamble(){
+  const el = document.getElementById('gambleList');
+  el.innerHTML = GAMBLES.map(g=>{
+    const presets = getPresets(g);
+    return `<div class="gamble-card">
+      <div class="gamble-head">
+        <div class="gamble-icon-wrap" style="background:${riskBg(g.risk)}">${g.emoji}</div>
+        <div class="gamble-info">
+          <div class="gamble-name">${g.name}</div>
+          <div class="gamble-odds">最大${g.odds}倍 · 最低賭け ¥${fmt(g.minBet)}</div>
+        </div>
+        <div class="gamble-risk ${g.risk}">${g.riskLabel}</div>
+      </div>
+      <div class="gamble-body">
+        <div class="gamble-desc">${g.desc}</div>
+        <div class="bet-row">
+          <div class="bet-label">金額</div>
+          <div class="bet-presets" id="presets-${g.id}">
+            ${presets.map(p=>`<button class="bet-preset" data-g="${g.id}" data-v="${p}" onclick="selectPreset('${g.id}',${p})">¥${fmt(p)}</button>`).join('')}
+            <button class="bet-preset" data-g="${g.id}" data-v="all" onclick="selectPreset('${g.id}','all')">全賭け</button>
+          </div>
+        </div>
+        <div class="bet-input-wrap">
+          <input class="bet-input" id="betInput-${g.id}" type="number" placeholder="金額を入力" min="${g.minBet}" value="${g.minBet}">
+        </div>
+        <button class="bet-go" onclick="openGambleModal('${g.id}')">賭ける！</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function riskBg(r){
+  return {low:'#e8f5e9',mid:'#fff3e0',high:'#fce4ec',ultra:'#1a1a1a'}[r]||'#eee';
+}
+function getPresets(g){
+  const b = state.balance;
+  const candidates = [g.minBet, g.minBet*2, g.minBet*5, Math.floor(b*.25), Math.floor(b*.5)];
+  return [...new Set(candidates.filter(v=>v>=g.minBet&&v<=b))].slice(0,4);
+}
+function selectPreset(gid, val){
+  const amt = val==='all' ? state.balance : val;
+  document.getElementById('betInput-'+gid).value = amt;
+  document.querySelectorAll(`[data-g="${gid}"]`).forEach(el=>{
+    el.classList.toggle('sel', String(el.dataset.v)===String(val));
+  });
+}
+
+// ── GAMBLE MODAL OPEN ──
+let gmState = {}; // current gamble modal state
+
+function openGambleModal(gid){
+  const g = GAMBLES.find(x=>x.id===gid);
+  const amt = parseInt(document.getElementById('betInput-'+gid).value)||0;
+  if(amt < g.minBet){ showToastMsg(`最低賭け金は¥${fmt(g.minBet)}です`); return; }
+  if(amt > state.balance){ showToastMsg('残高が足りません💸'); return; }
+  gmState = { g, amt, choice: null };
+  buildGambleSheet(g, amt);
+  document.getElementById('gambleModal').classList.add('show');
+}
+function closeGambleModal(){
+  document.getElementById('gambleModal').classList.remove('show');
+  gmState = {};
+}
+
+function buildGambleSheet(g, amt){
+  const sheet = document.getElementById('gmSheet');
+  sheet.innerHTML = `
+    <div class="gm-handle"></div>
+    <div class="gm-title">${g.emoji} ${g.name}</div>
+    <div class="gm-bet-info">賭け金: ¥${fmt(amt)} · 最大獲得: ¥${fmt(Math.round(amt*g.odds))}</div>
+    <div id="gmGameArea"></div>
+    <button class="gm-go" id="gmGoBtn" disabled>← 選択してから賭ける</button>
+    <button class="gm-cancel" onclick="closeGambleModal()">キャンセル</button>
+  `;
+  const area = document.getElementById('gmGameArea');
+  if(g.id==='coin')   buildCoinUI(area);
+  if(g.id==='dice')   buildDiceUI(area);
+  if(g.id==='slot')   buildSlotUI(area);
+  if(g.id==='horse')  buildHorseUI(area);
+  if(g.id==='lottery')buildLotteryUI(area);
+}
+
+function setGmReady(label){
+  const btn = document.getElementById('gmGoBtn');
+  btn.disabled = false;
+  btn.textContent = label || '🎲 今すぐ賭ける！';
+}
+
+// ══════════════════════════════════
+// COIN
+// ══════════════════════════════════
+function buildCoinUI(area){
+  area.innerHTML = `
+    <div class="coin-scene">
+      <div class="coin-3d" id="coinEl" style="perspective:400px;transform-style:preserve-3d;">
+        <div class="coin-face coin-front">🌞</div>
+        <div class="coin-face coin-back">🌙</div>
+      </div>
+    </div>
+    <div class="gm-choice-label">表か裏かを選んでください</div>
+    <div class="coin-choice-row">
+      <button class="coin-choice" id="coinHead" onclick="selectCoin('head')">🌞 表</button>
+      <button class="coin-choice" id="coinTail" onclick="selectCoin('tail')">🌙 裏</button>
+    </div>`;
+}
+function selectCoin(side){
+  gmState.choice = side;
+  document.getElementById('coinHead').classList.toggle('sel', side==='head');
+  document.getElementById('coinTail').classList.toggle('sel', side==='tail');
+  setGmReady('🌞 コインを投げる！');
+  document.getElementById('gmGoBtn').onclick = ()=>runCoin();
+}
+function runCoin(){
+  const g = gmState.g, amt = gmState.amt, choice = gmState.choice;
+  const effectiveChance = Math.min(0.95, g.winChance + vipWinChanceBonus());
+  const won = state.godMode || Math.random() < effectiveChance;
+  const resultFace = won ? choice : (choice==='head'?'tail':'head');
+  const baseRot = 1800;
+  const extraRot = resultFace === 'head' ? 0 : 180;
+  const totalRot = baseRot + extraRot;
+  const coinEl = document.getElementById('coinEl');
+  document.getElementById('gmGoBtn').disabled = true;
+  coinEl.style.transition = `transform 1.8s cubic-bezier(.4,0,.2,1)`;
+  coinEl.style.transform = `rotateY(${totalRot}deg)`;
+  setTimeout(()=>finishGamble(g, amt, won), 2100);
+}
+
+// ══════════════════════════════════
+// DICE
+// ══════════════════════════════════
+const DICE_FACES = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+function buildDiceUI(area){
+  area.innerHTML = `
+    <div class="dice-scene">
+      <div class="dice-3d" id="diceEl">⚂</div>
+    </div>
+    <div class="gm-choice-label">1〜6の数字を選んでください</div>
+    <div class="dice-num-select">
+      ${[1,2,3,4,5,6].map(n=>`<button class="dice-num" id="diceNum${n}" onclick="selectDice(${n})">${DICE_FACES[n]}</button>`).join('')}
+    </div>`;
+}
+function selectDice(n){
+  gmState.choice = n;
+  [1,2,3,4,5,6].forEach(i=>document.getElementById('diceNum'+i).classList.toggle('sel',i===n));
+  setGmReady(`${DICE_FACES[n]} ${n}に賭ける！`);
+  document.getElementById('gmGoBtn').onclick = ()=>runDice();
+}
+function runDice(){
+  const g = gmState.g, amt = gmState.amt, choice = gmState.choice;
+  const effectiveChance = Math.min(0.9, g.winChance + vipWinChanceBonus());
+  const result = (state.godMode || Math.random() < effectiveChance) ? choice : (()=>{
+    let r; do{ r=Math.ceil(Math.random()*6); }while(r===choice); return r;
+  })();
+  const won = result === choice;
+
+  document.getElementById('gmGoBtn').disabled = true;
+  const diceEl = document.getElementById('diceEl');
+  diceEl.classList.add('rolling');
+
+  // ランダムに面を回しながら最終的にresultへ
+  let tick=0;
+  const interval = setInterval(()=>{
+    diceEl.textContent = DICE_FACES[Math.ceil(Math.random()*6)];
+    tick++;
+    if(tick>18){ clearInterval(interval); diceEl.textContent=DICE_FACES[result]; diceEl.classList.remove('rolling');
+      setTimeout(()=>finishGamble(g,amt,won), 600);
+    }
+  }, 80);
+}
+
+// ══════════════════════════════════
+// SLOT
+// ══════════════════════════════════
+const SLOT_SYMBOLS = ['🍒','🍋','🍊','🔔','⭐','7️⃣','💎'];
+let slotRunning = false;
+function buildSlotUI(area){
+  area.innerHTML = `
+    <div class="slot-scene">
+      <div class="slot-label">SLOT MACHINE</div>
+      <div class="slot-reels">
+        <div class="slot-reel" id="reel0"><div class="slot-reel-inner" id="ri0">🍒</div></div>
+        <div class="slot-reel" id="reel1"><div class="slot-reel-inner" id="ri1">🍋</div></div>
+        <div class="slot-reel" id="reel2"><div class="slot-reel-inner" id="ri2">🍊</div></div>
+      </div>
+      <button class="slot-lever" onclick="runSlot()">🎰</button>
+    </div>
+    <div class="gm-choice-label" style="color:var(--gray)">レバーを引くと自動で賭けます</div>`;
+  // slot doesn't need selection - go button activates via lever
+  document.getElementById('gmGoBtn').style.display='none';
+  document.getElementById('gmGoBtn').nextElementSibling.textContent='閉じる';
+}
+function runSlot(){
+  if(slotRunning) return;
+  slotRunning = true;
+  const g = gmState.g, amt = gmState.amt;
+
+  // 結果を先に決める
+  const r = Math.random();
+  let won=false, halfWon=false, multiplier=g.odds;
+  const effW = Math.min(0.9, g.winChance + vipWinChanceBonus());
+  const effH = Math.min(0.9, (g.halfWinChance||0) + vipWinChanceBonus()*0.5);
+  if(state.godMode || r < effW){ won=true; }
+  else if(r < effW + effH){ halfWon=true; multiplier=g.halfOdds; }
+
+  const sym = SLOT_SYMBOLS;
+  let results;
+  if(won){
+    const s=sym[Math.floor(Math.random()*sym.length)];
+    results=[s,s,s];
+  } else if(halfWon){
+    const s=sym[Math.floor(Math.random()*sym.length)];
+    let s2; do{s2=sym[Math.floor(Math.random()*sym.length)]}while(s2===s);
+    results=[s,s,s2];
+  } else {
+    results=[sym[0],sym[1],sym[2]].map(()=>sym[Math.floor(Math.random()*sym.length)]);
+    while(results[0]===results[1]&&results[1]===results[2]) results[2]=sym[Math.floor(Math.random()*sym.length)];
+  }
+
+  // リールアニメ
+  [0,1,2].forEach((i)=>{
+    const ri = document.getElementById('ri'+i);
+    ri.style.transition='none';
+    // スピン演出
+    let t=0;
+    const stopTime = 800 + i*500;
+    const spinInt = setInterval(()=>{
+      ri.textContent = sym[Math.floor(Math.random()*sym.length)];
+      t+=80;
+      if(t>=stopTime){
+        clearInterval(spinInt);
+        ri.textContent = results[i];
+        if(i===2){
+          slotRunning=false;
+          setTimeout(()=>finishGamble(g,amt,won||halfWon, halfWon?'惜しい！2つ揃い💫':null, multiplier), 500);
+        }
+      }
+    },80);
+  });
+}
+
+// ══════════════════════════════════
+// HORSE
+// ══════════════════════════════════
+const HORSES = [
+  {name:'サクラ',emoji:'🐎',col:'#e91e63'},
+  {name:'ブルーサンダー',emoji:'🐴',col:'#2196f3'},
+  {name:'ゴールドラッシュ',emoji:'🦄',col:'#ff9800'},
+  {name:'ダークホース',emoji:'🖤',col:'#333'},
+];
+let horseInterval=null;
+function buildHorseUI(area){
+  area.innerHTML = `
+    <div class="horse-scene" id="horseScene">
+      <div class="horse-track" id="horseTrack">
+        ${HORSES.map((h,i)=>`
+          <div class="horse-runner">
+            <span class="horse-emoji" id="hrse${i}">${h.emoji}</span>
+            <span class="horse-name" style="color:${h.col}">${h.name}</span>
+            <div class="horse-bar"><div class="horse-progress" id="hprog${i}" style="background:${h.col}"></div></div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="gm-choice-label">馬を選んでください</div>
+    <div class="horse-select">
+      ${HORSES.map((h,i)=>`
+        <button class="horse-btn" id="hbtn${i}" onclick="selectHorse(${i})">
+          ${h.emoji} ${h.name}
+          ${i===3?'<span style="font-size:9px;color:#f44336"> 穴(×20)</span>':'<span style="font-size:9px;color:var(--gray)"> ×3</span>'}
+        </button>`).join('')}
+    </div>`;
+}
+function selectHorse(idx){
+  gmState.choice = idx;
+  HORSES.forEach((_,i)=>document.getElementById('hbtn'+i).classList.toggle('sel',i===idx));
+  const h=HORSES[idx];
+  setGmReady(`${h.emoji} ${h.name}に賭ける！`);
+  document.getElementById('gmGoBtn').onclick = ()=>runHorse();
+}
+function runHorse(){
+  const g=gmState.g, amt=gmState.amt, choice=gmState.choice;
+  document.getElementById('gmGoBtn').disabled=true;
+
+  // 勝つ馬を先に決める
+  const r=Math.random();
+  const effDark = Math.min(0.9, g.darkHorseChance + vipWinChanceBonus()*0.5);
+  const effWin  = Math.min(0.9, g.winChance + vipWinChanceBonus());
+  let winner;
+  if(state.godMode){ winner=choice; }
+  else if(choice===3 && r<effDark){ winner=3; }
+  else if(choice!==3 && r<effWin){ winner=choice; }
+  else {
+    const others=HORSES.map((_,i)=>i).filter(i=>i!==choice);
+    winner=others[Math.floor(Math.random()*others.length)];
+  }
+  const won = winner===choice;
+  const multiplier = (choice===3&&won) ? g.darkHorseOdds : g.odds;
+
+  // レース開始
+  const progs = HORSES.map(()=>0);
+  const speeds = HORSES.map((_,i)=>{
+    if(i===winner) return 2.5+Math.random()*1.5;
+    return 1.2+Math.random()*2.0;
+  });
+
+  clearInterval(horseInterval);
+  horseInterval = setInterval(()=>{
+    let done=false;
+    HORSES.forEach((_,i)=>{
+      progs[i] = Math.min(100, progs[i]+speeds[i]*(0.8+Math.random()*0.4));
+      document.getElementById('hprog'+i).style.width=progs[i]+'%';
+      const horseEl=document.getElementById('hrse'+i);
+      if(horseEl) horseEl.style.left=(progs[i]*.55)+'%';
+      if(progs[i]>=100) done=true;
+    });
+    if(done){
+      clearInterval(horseInterval);
+      setTimeout(()=>finishGamble(g,amt,won,null,multiplier),600);
+    }
+  },60);
+}
+
+// ══════════════════════════════════
+// LOTTERY
+// ══════════════════════════════════
+function buildLotteryUI(area){
+  const ticket = Array.from({length:6},()=>Math.floor(Math.random()*9)+1);
+  gmState.ticket = ticket;
+  area.innerHTML = `
+    <div class="lottery-scene">
+      <div class="lottery-ticket" id="lottTicket">
+        ${ticket.map(n=>`<span>${n}</span>`).join(' ')}
+      </div>
+      <div class="lottery-scratch">あなたのチケット番号</div>
+      <div class="lottery-ball-wrap" id="lottBalls">
+        ${Array.from({length:6},(_,i)=>`<div class="lottery-ball" id="lb${i}" style="opacity:.3">?</div>`).join('')}
+      </div>
+      <div class="lottery-scratch" id="lottStatus">番号を発表します</div>
+    </div>`;
+  setGmReady('🎟️ 抽選を開始！');
+  document.getElementById('gmGoBtn').onclick = ()=>runLottery();
+}
+function runLottery(){
+  const g=gmState.g, amt=gmState.amt;
+  document.getElementById('gmGoBtn').disabled=true;
+  const effChance = Math.min(0.5, g.winChance + vipWinChanceBonus()*0.3);
+  const won = state.godMode || Math.random()<effChance;
+  const ticket=gmState.ticket;
+  const colors=['#e91e63','#9c27b0','#2196f3','#ff9800','#4caf50','#f44336'];
+
+  // 当選番号を生成
+  let drawn;
+  if(won){ drawn=[...ticket]; } // 全一致
+  else {
+    drawn=Array.from({length:6},()=>Math.floor(Math.random()*9)+1);
+    // 必ず外れるようにする
+    while(drawn.join('')===ticket.join('')){
+      drawn=Array.from({length:6},()=>Math.floor(Math.random()*9)+1);
+    }
+  }
+
+  document.getElementById('lottStatus').textContent='🎱 抽選中...';
+  drawn.forEach((n,i)=>{
+    setTimeout(()=>{
+      const ball=document.getElementById('lb'+i);
+      ball.textContent=n;
+      ball.style.background=colors[i];
+      ball.style.opacity='1';
+      ball.style.setProperty('--del','0s');
+      ball.classList.add('reveal');
+      if(i===5){
+        setTimeout(()=>finishGamble(g,amt,won),700);
+      }
+    },300+i*400);
+  });
+}
+
+// ══════════════════════════════════
+// FINISH GAMBLE (共通)
+// ══════════════════════════════════
+function finishGamble(g, amt, won, overrideMsg=null, multiplier=null){
+  multiplier = multiplier || g.odds;
+
+  // godMode: 強制勝利
+  if(state.godMode) won = true;
+
+  let gain, msg, isWin;
+  if(won){
+    // VIP: 勝利金+15%
+    const bonus = vipWinBonus();
+    gain = Math.round((Math.round(amt*multiplier) - amt) * bonus);
+    state.balance += gain;
+    isWin = true;
+    msg = overrideMsg || g.winMsgs[Math.floor(Math.random()*g.winMsgs.length)];
+    // 統計
+    state.stats.gambleTotal++;
+    state.stats.gambleWins++;
+    state.stats.totalEarned = (state.stats.totalEarned||0) + gain;
+    if(state.balance > (state.stats.maxBalance||0)) state.stats.maxBalance = state.balance;
+    addHistory(g.emoji, g.name, gain);
+    showFlash('green');
+  } else {
+    gain = -amt;
+    state.balance -= amt;
+    isWin = false;
+    msg = overrideMsg || g.loseMsgs[Math.floor(Math.random()*g.loseMsgs.length)];
+    // 統計
+    state.stats.gambleTotal++;
+    state.stats.gambleLoses++;
+    state.stats.totalLost = (state.stats.totalLost||0) + amt;
+    // 破産チェック
+    if(state.balance <= 0){
+      state.balance = 0;
+      state.stats.bankruptCount = (state.stats.bankruptCount||0) + 1;
+    }
+    addHistory(g.emoji, g.name, gain);
+    showFlash('red');
+  }
+  const absGain = Math.abs(gain);
+  closeGambleModal();
+  checkAndUnlockTitles();
+  saveState();
+  updateHomeBalance();
+  renderHistory();
+  setTimeout(()=>{
+    showResult(isWin, isWin?'勝ち！':'負け…',
+      isWin?`+¥${fmt(absGain)}`:`-¥${fmt(absGain)}`, msg);
+  }, 200);
+}
+
+// ═══════════════════════════════════════════
+// PORTFOLIO
+// ═══════════════════════════════════════════
+function renderPortfolio(){
+  const el = document.getElementById('portContent');
+  const positions = Object.entries(state.portfolio).filter(([,p])=>p.qty>0);
+  let stockVal = 0;
+  positions.forEach(([id,pos])=>{ stockVal += stockPrices[id]*pos.qty; });
+  const totalVal = state.balance + stockVal;
+  const totalPnl = totalVal - state.startBalance;
+
+  let html = `<div class="port-total">
+    <div class="port-total-label">総資産</div>
+    <div class="port-total-val">¥${fmt(totalVal)}</div>
+    <div class="port-pnl ${totalPnl>=0?'up':'down'}">
+      スタートから ${totalPnl>=0?'+':'-'} ¥${fmt(Math.abs(totalPnl))} (${((totalPnl/state.startBalance)*100).toFixed(1)}%)
+    </div>
+  </div>
+  <div class="asset-row" style="margin-bottom:8px">
+    <div class="asset-emoji">💴</div>
+    <div class="asset-info"><div class="asset-name">現金</div><div class="asset-sub">PayPay残高</div></div>
+    <div class="asset-right"><div class="asset-val">¥${fmt(state.balance)}</div></div>
+  </div>`;
+
+  if(positions.length===0){
+    html += `<div class="port-empty">
+      <div class="port-empty-icon">📭</div>
+      <div class="port-empty-text">保有株式はありません<br>投資画面から株を買ってみよう！</div>
+    </div>`;
+  } else {
+    html += positions.map(([id,pos])=>{
+      const s = STOCKS.find(x=>x.id===id);
+      const cur = stockPrices[id];
+      const val = cur*pos.qty;
+      const pnl = (cur-pos.avgCost)*pos.qty;
+      const pct = ((cur-pos.avgCost)/pos.avgCost*100).toFixed(1);
+      return `<div class="port-item">
+        <div class="port-logo" style="background:${s.color}22">${s.emoji}</div>
+        <div class="port-info">
+          <div class="port-name">${s.name}</div>
+          <div class="port-qty">${pos.qty}株 · 平均¥${fmt(Math.round(pos.avgCost))}</div>
+        </div>
+        <div class="port-right">
+          <div class="port-val">¥${fmt(Math.round(val))}</div>
+          <div class="port-pnl-item ${pnl>=0?'up':'down'}">${pnl>=0?'+':''} ¥${fmt(Math.round(Math.abs(pnl)))} (${pct}%)</div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+  el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+// RESULT & FLASH
+// ═══════════════════════════════════════════
+function showResult(isWin, title, amount, msg){
+  document.getElementById('resultEmoji').textContent = isWin
+    ? (amount.includes('5000')||parseInt(amount.replace(/[^0-9]/g,''))>5000?'🤑':'🎉')
+    : (parseInt(amount.replace(/[^0-9]/g,''))>2000?'😭':'😢');
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultTitle').className = 'result-title '+(isWin?'win':'lose');
+  document.getElementById('resultAmount').textContent = amount;
+  document.getElementById('resultAmount').className = 'result-amount '+(isWin?'win':'lose');
+  document.getElementById('resultBalance').textContent = `残高: ¥${fmt(state.balance)}`;
+  document.getElementById('resultMsg').textContent = msg;
+  document.getElementById('resultOverlay').classList.add('show');
+  // re-render emoji anim
+  const em = document.getElementById('resultEmoji');
+  em.style.animation='none'; void em.offsetHeight; em.style.animation='';
+}
+function closeResult(){
+  document.getElementById('resultOverlay').classList.remove('show');
+  if(currentScreen==='gamble') renderGamble();
+  renderHistory();
+}
+
+function showFlash(type){
+  const el = document.getElementById('flash');
+  el.className = type;
+  el.style.opacity='.6';
+  setTimeout(()=>el.style.opacity='0',200);
+}
+
+// ═══════════════════════════════════════════
+// HISTORY
+// ═══════════════════════════════════════════
+function addHistory(icon, name, amount){
+  const now = new Date();
+  state.history.push({
+    icon, name, amount,
+    date: `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`
+  });
+  if(state.history.length>50) state.history.shift();
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+let toastT;
+function showToastMsg(msg){
+  const el = document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT=setTimeout(()=>el.classList.remove('show'),2000);
+}
+
+// ═══════════════════════════════════════════
+// FORMAT
+// ═══════════════════════════════════════════
+function fmt(n){
+  return Math.round(n).toLocaleString('ja-JP');
+}
+
+// ═══════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════
+function startApp(){
+  document.getElementById('onboarding').classList.add('hide');
+  setTimeout(()=>document.getElementById('onboarding').style.display='none',600);
+  state.todayStart = state.balance;
+  renderHome();
+}
+
+// ═══════════════════════════════════════════
+// TITLES (称号)
+// ═══════════════════════════════════════════
+const TITLES = [
+  {id:'firstbet', icon:'🎯',name:'初心者ギャンブラー',tier:1,cond:'ギャンブル初プレイ',check:s=>s.stats.gambleTotal>=1},
+  {id:'broke1',   icon:'💸',name:'無一文の勇者',      tier:1,cond:'初めて破産',         check:s=>s.stats.bankruptCount>=1},
+  {id:'stock1',   icon:'📊',name:'株式入門',          tier:1,cond:'株を初めて購入',      check:s=>s.stats.stockBuys>=1},
+  {id:'win10',    icon:'🏅',name:'勝利の味を知る者',  tier:2,cond:'10回勝利',           check:s=>s.stats.gambleWins>=10},
+  {id:'earn10k',  icon:'💰',name:'一万円プレイヤー',  tier:2,cond:'累計¥10,000稼ぐ',   check:s=>s.stats.totalEarned>=10000},
+  {id:'gamble20', icon:'🎲',name:'常連客',            tier:2,cond:'20回ギャンブル',      check:s=>s.stats.gambleTotal>=20},
+  {id:'win50',    icon:'🥇',name:'ツキを操る者',      tier:3,cond:'50回勝利',           check:s=>s.stats.gambleWins>=50},
+  {id:'earn100k', icon:'💎',name:'10万円の男',        tier:3,cond:'累計¥100,000稼ぐ',  check:s=>s.stats.totalEarned>=100000},
+  {id:'gamble100',icon:'🃏',name:'ギャンブル中毒者',  tier:3,cond:'100回ギャンブル',     check:s=>s.stats.gambleTotal>=100},
+  {id:'debt3',    icon:'🏦',name:'借金上等',          tier:3,cond:'借金3回',            check:s=>(s.debtTotalCount||0)>=3},
+  {id:'win200',   icon:'⚡',name:'無双状態',          tier:4,cond:'200回勝利',          check:s=>s.stats.gambleWins>=200},
+  {id:'earn1m',   icon:'🤑',name:'百万長者の風格',    tier:4,cond:'累計¥1,000,000稼ぐ',check:s=>s.stats.totalEarned>=1000000},
+  {id:'maxbal',   icon:'🏔️',name:'頂点を極めし者',    tier:4,cond:'残高¥500,000達成',   check:s=>s.stats.maxBalance>=500000},
+  {id:'gamble300',icon:'🌀',name:'狂気のプレイヤー',  tier:4,cond:'300回ギャンブル',     check:s=>s.stats.gambleTotal>=300},
+  {id:'win500',   icon:'🔥',name:'真のギャンブラー',  tier:5,cond:'500回勝利',          check:s=>s.stats.gambleWins>=500},
+  {id:'earn5m',   icon:'💫',name:'億万長者への道',    tier:5,cond:'累計¥5,000,000稼ぐ', check:s=>s.stats.totalEarned>=5000000},
+  {id:'broke5',   icon:'💀',name:'地獄を見た男',      tier:5,cond:'5回破産',            check:s=>s.stats.bankruptCount>=5},
+  {id:'win1000',  icon:'👑',name:'ギャンブル神',      tier:6,cond:'1000回勝利',         check:s=>s.stats.gambleWins>=1000},
+  {id:'earn10m',  icon:'🌟',name:'伝説の億り人',      tier:6,cond:'累計¥10,000,000稼ぐ',check:s=>s.stats.totalEarned>=10000000},
+  {id:'gamble1k', icon:'🌈',name:'ギャンブルの化身',  tier:6,cond:'1000回ギャンブル',    check:s=>s.stats.gambleTotal>=1000},
+  {id:'vip_title',icon:'💠',name:'VIP会員',          tier:'vip',cond:'VIP会員になる',   check:s=>s.vip},
+];
+const TIER_CLASS={1:'tb tb-1',2:'tb tb-2',3:'tb tb-3',4:'tb tb-4',5:'tb tb-5',6:'tb tb-6',vip:'tb tb-vip'};
+
+function checkAndUnlockTitles(){
+  let newOnes=[];
+  TITLES.forEach(t=>{
+    if(!state.unlockedTitles.includes(t.id)&&t.check(state)){
+      state.unlockedTitles.push(t.id); newOnes.push(t);
+    }
+  });
+  if(newOnes.length){
+    saveState();
+    newOnes.forEach((t,i)=>setTimeout(()=>showToastMsg(`🏆 称号解放「${t.name}」`),i*1600));
+  }
+}
+
+// ═══════════════════════════════════════════
+// VIP
+// ═══════════════════════════════════════════
+const VIP_PRICE = 10000000;
+function vipWinBonus(){ return state.vip?1.15:1.0; }
+function vipWinChanceBonus(){ return state.vip?0.30:0.0; }
+function vipStockDiscount(){ return state.vip?0.95:1.0; }
+function getDebtBLDuration(){ return state.vip?30*60*1000:60*60*1000; }
+function getDebtCooldownDuration(){ return state.vip?5*60*1000:10*60*1000; }
+
+function buyVip(){
+  const bal = Number(state.balance);
+  if(bal < VIP_PRICE){
+    showToastMsg('残高が足りません (必要: ¥'+fmt(VIP_PRICE)+')');
+    return;
+  }
+  state.balance = bal - VIP_PRICE;
+  state.vip = true;
+  addHistory('👑','VIP購入',-VIP_PRICE);
+  saveState();
+  updateHomeBalance();
+  checkAndUnlockTitles();
+  renderVipPage();
+  showToastMsg('👑 VIP会員になりました！おめでとうございます！');
+}
+
+function renderVipPage(){
+  const el=document.getElementById('vipContent'); if(!el) return;
+  const vip=state.vip;
+  const canBuy=state.balance>=VIP_PRICE;
+  const perks=[
+    ['🎰','ギャンブル勝率+30%','全ギャンブルで勝てる確率が大幅アップ'],
+    ['⏳','借金クールダウン -5分','クールタイムが10分→5分に短縮'],
+    ['🚫','ブラックリスト短縮','1時間→30分に半減'],
+    ['💰','勝利獲得金+15%','ギャンブル勝利時の報酬が15%増加'],
+    ['📈','株5%割引購入','すべての株を定価より5%安く購入'],
+    ['💠','専用VIP称号','「VIP会員」称号を装備できる'],
+  ];
+
+  // --- ヒーローカード ---
+  el.innerHTML='';
+  const hero=document.createElement('div');
+  hero.className='vip-hero';
+  hero.innerHTML=`
+    <div class="vip-crown-big">👑</div>
+    <div class="vip-hero-title">PayPay VIP</div>
+    <div class="vip-hero-sub">真のプレイヤーだけが手にできる特権</div>
+    <div class="vip-price">¥${fmt(VIP_PRICE)}</div>
+    <div class="vip-price-sub">一度購入すれば永続有効</div>`;
+  if(vip){
+    const badge=document.createElement('div');
+    badge.className='vip-owned-badge';
+    badge.textContent='✨ あなたはVIP会員です！';
+    hero.appendChild(badge);
+  } else {
+    const btn=document.createElement('button');
+    btn.className='vip-buy-btn';
+    btn.disabled=!canBuy;
+    btn.textContent=canBuy?'👑 VIPになる':'残高不足 (¥'+fmt(VIP_PRICE-state.balance)+' 不足)';
+    btn.addEventListener('click', buyVip);
+    hero.appendChild(btn);
+  }
+  el.appendChild(hero);
+
+  // --- 特典リスト ---
+  const perksSection=document.createElement('div');
+  perksSection.className='vip-perks-section';
+  perksSection.innerHTML='<div class="vip-perks-title">👑 VIP特典</div>';
+  perks.forEach(([ic,nm,dc])=>{
+    const item=document.createElement('div');
+    item.className='vip-perk-item';
+    item.innerHTML=`<div class="vip-perk-icon">${ic}</div>
+      <div class="vip-perk-text"><div class="vip-perk-name">${nm}</div><div class="vip-perk-desc">${dc}</div></div>
+      <span style="color:${vip?'var(--green)':'var(--gray2)'};font-size:16px">${vip?'✓':'○'}</span>`;
+    perksSection.appendChild(item);
+  });
+  el.appendChild(perksSection);
+
+  // 称号はVIPページには表示しない
+  // （👤ボタン → 称号モーダルから確認・装備できる）
+  const note=document.createElement('div');
+  note.style.cssText='text-align:center;padding:16px;font-size:12px;color:var(--gray)';
+  note.innerHTML='🏆 称号の確認・装備は<br>ホーム画面の 👤 ボタンから';
+  el.appendChild(note);
+}
+
+function buildTitleList(container){
+  const st = state.stats||{};
+
+  // 進捗を取得する共通関数
+  function getProgress(t){
+    const wmap={win10:10,win50:50,win200:200,win500:500,win1000:1000};
+    const gmap={gamble20:20,gamble100:100,gamble300:300,gamble1k:1000};
+    const gw = st.gambleWins||0;
+    const gt = st.gambleTotal||0;
+    const te = st.totalEarned||0;
+    const mb = st.maxBalance||0;
+    const bc = st.bankruptCount||0;
+    const sb = st.stockBuys||0;
+    const dc = state.debtTotalCount||0;
+
+    if(wmap[t.id])     return {cur:gw,   max:wmap[t.id], label:'勝利数'};
+    if(gmap[t.id])     return {cur:gt,   max:gmap[t.id], label:'プレイ回数'};
+    if(t.id==='earn10k')  return {cur:te, max:10000,    label:'累計獲得', yen:true};
+    if(t.id==='earn100k') return {cur:te, max:100000,   label:'累計獲得', yen:true};
+    if(t.id==='earn1m')   return {cur:te, max:1000000,  label:'累計獲得', yen:true};
+    if(t.id==='earn5m')   return {cur:te, max:5000000,  label:'累計獲得', yen:true};
+    if(t.id==='earn10m')  return {cur:te, max:10000000, label:'累計獲得', yen:true};
+    if(t.id==='maxbal')   return {cur:mb, max:500000,   label:'最高残高', yen:true};
+    if(t.id==='broke1')   return {cur:bc, max:1,        label:'破産回数'};
+    if(t.id==='broke5')   return {cur:bc, max:5,        label:'破産回数'};
+    if(t.id==='debt3')    return {cur:dc, max:3,        label:'借金回数'};
+    if(t.id==='stock1')   return {cur:sb, max:1,        label:'株購入回数'};
+    if(t.id==='firstbet') return {cur:gt, max:1,        label:'プレイ回数'};
+    if(t.id==='broke1')   return {cur:bc, max:1,        label:'破産回数'};
+    if(t.id==='vip_title')return {cur:state.vip?1:0, max:1, label:'VIP会員'};
+    return null;
+  }
+
+  TITLES.forEach(t=>{
+    const unlocked = state.unlockedTitles.includes(t.id);
+    const equipped  = state.equippedTitle===t.id;
+    const cls = TIER_CLASS[t.tier]||'tb tb-1';
+    const prog = getProgress(t);
+
+    // 進捗バーのHTML
+    let progHTML = '';
+    if(prog){
+      const pct = Math.min(100, Math.round((prog.cur/prog.max)*100));
+      const curTxt = prog.yen ? '¥'+fmt(prog.cur) : prog.cur.toLocaleString();
+      const maxTxt = prog.yen ? '¥'+fmt(prog.max) : prog.max.toLocaleString();
+      progHTML = `
+        <div style="margin-top:5px">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--gray);margin-bottom:3px">
+            <span>${prog.label}</span>
+            <span style="font-weight:700;color:${unlocked?'var(--green)':'var(--text)'}">${curTxt} / ${maxTxt}</span>
+          </div>
+          <div style="height:4px;background:var(--gray2);border-radius:2px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${unlocked?'var(--green)':'var(--red)'};border-radius:2px;transition:width .5s"></div>
+          </div>
+        </div>`;
+    }
+
+    const card = document.createElement('div');
+    card.className = 'title-item';
+    if(!unlocked) card.classList.add('locked');
+    if(equipped)  card.classList.add('equipped');
+
+    card.innerHTML = `
+      <div class="title-icon-bg" style="${unlocked?'background:'+getComputedStyle(document.documentElement).getPropertyValue('--gray3'):''}">${t.icon}</div>
+      <div class="title-info">
+        <div class="title-name-row">
+          <span class="${cls}">${t.name}</span>
+          ${equipped?'<span class="title-equipped-tag">▶装備中</span>':''}
+          ${unlocked?'<span style="font-size:10px;color:var(--green)">✓</span>':'<span style="font-size:10px;color:var(--gray)">🔒</span>'}
+        </div>
+        <div class="title-cond-text">${t.cond}</div>
+        ${progHTML}
+        ${unlocked?'<div style="font-size:10px;color:var(--gray);margin-top:3px">'+(equipped?'タップして外す':'タップして装備')+'</div>':''}
+      </div>`;
+
+    if(unlocked){
+      card.addEventListener('click', ()=>equipTitle(t.id));
+    }
+    container.appendChild(card);
+  });
+}
+
+function equipTitle(id){
+  if(!state.unlockedTitles.includes(id)) return;
+  state.equippedTitle = state.equippedTitle===id ? null : id;
+  saveState();
+  const t=TITLES.find(x=>x.id===id);
+  showToastMsg(state.equippedTitle===id ? '「'+t.name+'」を装備！' : '称号を外しました');
+  updateHomeBalance(); // 残高カードの称号表示更新
+  // 開いているパネル再描画
+  if(currentScreen==='vip') renderVipPage();
+  const titleModal=document.getElementById('titleModal');
+  if(titleModal.style.display==='flex') openTitleModal();
+}
+
+// ── 称号モーダル（ホーム👤ボタン用）──
+function openTitleModal(){
+  const modal = document.getElementById('titleModal');
+  const list  = document.getElementById('titleModalList');
+  const sub   = document.getElementById('titleModalSub');
+  sub.textContent = '解放済み: '+state.unlockedTitles.length+' / '+TITLES.length;
+  list.innerHTML = '';
+
+  // 現在装備中の称号バナー
+  if(state.equippedTitle){
+    const cur = TITLES.find(x=>x.id===state.equippedTitle);
+    const cls = TIER_CLASS[cur.tier]||'tb tb-1';
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:var(--gray3);border-radius:12px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--text2);flex-wrap:wrap';
+    banner.innerHTML = '現在の称号: <span class="'+cls+'">'+cur.icon+' '+cur.name+'</span>';
+    list.appendChild(banner);
+  } else {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:var(--gray3);border-radius:12px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--gray);text-align:center';
+    banner.textContent = '称号を装備していません';
+    list.appendChild(banner);
+  }
+
+  buildTitleList(list);
+  modal.style.display = 'flex';
+}
+document.getElementById('titleModalClose').addEventListener('click',()=>{
+  document.getElementById('titleModal').style.display='none';
+});
+document.getElementById('titleModal').addEventListener('click',e=>{
+  if(e.target===document.getElementById('titleModal'))
+    document.getElementById('titleModal').style.display='none';
+});
+
+// ── 全額株購入 ──
+function buyMaxStock(stockId){
+  const s=STOCKS.find(x=>x.id===stockId); if(!s) return;
+  const rawPrice=stockPrices[stockId];
+  const price=Math.round(rawPrice*vipStockDiscount());
+  const qty=Math.floor(state.balance/price);
+  if(qty<=0){showToastMsg('残高が足りません');return;}
+  const total=price*qty;
+  state.balance-=total;
+  if(!state.portfolio[stockId])state.portfolio[stockId]={qty:0,avgCost:0};
+  const pos=state.portfolio[stockId];
+  pos.avgCost=(pos.avgCost*pos.qty+price*qty)/(pos.qty+qty);
+  pos.qty+=qty;
+  state.stats.stockBuys=(state.stats.stockBuys||0)+1;
+  addHistory(s.emoji,`${s.name} 全力買い×${qty}`,-total);
+  showFlash('red'); saveState(); updateHomeBalance(); renderInvest();
+  checkAndUnlockTitles();
+  showToastMsg(`${s.emoji} ${qty}株 全力購入！¥${fmt(total)}`);
+}
+
+// ── 全額株売却 ──
+function sellMaxStock(stockId){
+  const s=STOCKS.find(x=>x.id===stockId); if(!s) return;
+  const pos=state.portfolio[stockId];
+  if(!pos||pos.qty<=0){showToastMsg('保有株がありません');return;}
+  const price=stockPrices[stockId];
+  const qty=pos.qty;
+  const total=price*qty;
+  const pnl=(price-pos.avgCost)*qty;
+  state.balance+=total;
+  delete state.portfolio[stockId];
+  state.stats.totalEarned=(state.stats.totalEarned||0)+(pnl>0?pnl:0);
+  state.stats.totalLost=(state.stats.totalLost||0)+(pnl<0?Math.abs(pnl):0);
+  if(state.balance>(state.stats.maxBalance||0)) state.stats.maxBalance=state.balance;
+  addHistory(s.emoji,`${s.name} 全力売り×${qty}`,total);
+  showFlash(pnl>=0?'green':'red');
+  saveState(); updateHomeBalance(); renderInvest();
+  checkAndUnlockTitles();
+  setTimeout(()=>{
+    showResult(
+      pnl>=0,
+      pnl>=0?'💹 全力売り成功！':'📉 全力売り（損切り）',
+      pnl>=0?`+¥${fmt(Math.round(pnl))}`:`-¥${fmt(Math.round(Math.abs(pnl)))}`,
+      pnl>=0
+        ?`${s.emoji} ${qty}株を全力売却！¥${fmt(total)}を回収！`
+        :`${s.emoji} ${qty}株を損切り…¥${fmt(total)}を回収。次はリベンジだ！`
+    );
+  }, 200);
+}
+function updateClock(){
+  const now = new Date();
+  const h = now.getHours(), m = String(now.getMinutes()).padStart(2,'0');
+  const el = document.querySelector('.statusbar-left');
+  if(el) el.textContent = `${h}:${m}`;
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+// ── DEBT / BORROW ──
+const DEBT_AMOUNT     = 1000;
+const DEBT_REPAY_MS   = 60 * 60 * 1000;
+
+function borrowMoney(){
+  const now = Date.now();
+
+  // ブラックリスト中
+  if(state.debtBlacklistUntil && now < state.debtBlacklistUntil){
+    const rem = msToTime(state.debtBlacklistUntil - now);
+    showToastMsg(`🚫 ブラックリスト中！解除まで ${rem}`);
+    return;
+  }
+  // クールタイム中
+  if(state.debtCooldownUntil && now < state.debtCooldownUntil){
+    const rem = msToTime(state.debtCooldownUntil - now);
+    showToastMsg(`⏳ クールタイム中！あと ${rem}`);
+    return;
+  }
+  // 残高が多い
+  if(state.balance > 100){
+    showToastMsg('残高が¥100より多いため借りられません');
+    return;
+  }
+  // 既に未返済の借金がある
+  if(state.debt > 0){
+    showToastMsg(`まず借金¥${fmt(state.debt)}を返済してください`);
+    return;
+  }
+
+  // 借りる
+  state.balance += DEBT_AMOUNT;
+  state.debt = DEBT_AMOUNT;
+  state.debtBorrowedAt = now;
+  state.debtCooldownUntil = now + getDebtCooldownDuration();
+  state.debtBlacklistUntil = null;
+  state.debtTotalCount = (state.debtTotalCount||0) + 1;
+  addHistory('🏦', '緊急融資', DEBT_AMOUNT);
+  saveState();
+  updateHomeBalance();
+  showToastMsg(`🏦 ¥${fmt(DEBT_AMOUNT)} 借りました。1時間以内に返済！`);
+  startDebtTimer();
+}
+
+function repayDebt(){
+  if(state.debt <= 0){ showToastMsg('借金はありません'); return; }
+  if(state.balance < state.debt){ showToastMsg(`残高が足りません（必要: ¥${fmt(state.debt)}）`); return; }
+  state.balance -= state.debt;
+  addHistory('🏦', '借金返済', -state.debt);
+  state.debt = 0;
+  state.debtBorrowedAt = null;
+  state.debtBlacklistUntil = null;
+  // クールタイムは返済後もそのまま残す
+  saveState();
+  updateHomeBalance();
+  showToastMsg('✅ 借金を完済しました！');
+}
+
+let debtTimerInterval = null;
+function startDebtTimer(){
+  clearInterval(debtTimerInterval);
+  debtTimerInterval = setInterval(checkDebtExpiry, 5000);
+}
+function checkDebtExpiry(){
+  if(!state.debt || state.debt <= 0){ clearInterval(debtTimerInterval); return; }
+  const now = Date.now();
+  if(state.debtBorrowedAt && now - state.debtBorrowedAt >= DEBT_REPAY_MS){
+    // 未返済→ブラックリスト
+    state.debtBlacklistUntil = now + getDebtBLDuration();
+    state.debt = 0;
+    state.debtBorrowedAt = null;
+    clearInterval(debtTimerInterval);
+    saveState();
+    updateHomeBalance();
+    showToastMsg('🚫 返済期限切れ！1時間ブラックリスト入り');
+  }
+}
+
+function msToTime(ms){
+  const m = Math.floor(ms/60000);
+  const s = Math.floor((ms%60000)/1000);
+  return m > 0 ? `${m}分${s}秒` : `${s}秒`;
+}
+
+function goToS2(){
+  if(confirm('🚀 SEASON 2 へ進みますか？\n（このページを離れます）')){
+    window.location.href='https://ggezyoulose-eng.github.io/pays2/';
+  }
+}
+
+// 返済ボタン用（バナークリック時）
+function handleDebtBannerClick(){
+  if(state.debt > 0){
+    // 返済確認
+    if(confirm(`借金¥${fmt(state.debt)}を今すぐ返済しますか？`)) repayDebt();
+  } else {
+    borrowMoney();
+  }
+}
+
+// ── ADMIN ──
+const ADMIN_PW = 'TTJP';
+let adminBuf = '';
+document.addEventListener('keydown', e=>{
+  adminBuf = (adminBuf + e.key).slice(-4);
+  if(adminBuf === ADMIN_PW) openAdmin();
+});
+let logoTaps=0, logoTapTimer;
+document.querySelector('.app-logo').addEventListener('click',()=>{
+  logoTaps++;
+  clearTimeout(logoTapTimer);
+  logoTapTimer = setTimeout(()=>logoTaps=0, 1500);
+  if(logoTaps>=5){ logoTaps=0; openAdmin(); }
+});
+
+function openAdmin(){
+  adminBuf='';
+  // パスワード画面にリセット
+  document.getElementById('adminAuthView').style.display='block';
+  document.getElementById('adminMainView').style.display='none';
+  document.getElementById('admPwInput').value='';
+  document.getElementById('admAuthMsg').textContent='';
+  document.getElementById('adminPanel').classList.add('show');
+}
+function closeAdmin(){
+  document.getElementById('adminPanel').classList.remove('show');
+}
+function setAdmMsg(t){ document.getElementById('admMsg').textContent = t; }
+
+// 認証
+document.getElementById('adm-auth').addEventListener('click', checkAdminPw);
+document.getElementById('admPwInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkAdminPw(); });
+function checkAdminPw(){
+  const v = document.getElementById('admPwInput').value.trim();
+  if(v === ADMIN_PW){
+    document.getElementById('adminAuthView').style.display='none';
+    document.getElementById('adminMainView').style.display='block';
+    document.getElementById('admMsg').textContent='';
+  } else {
+    document.getElementById('admAuthMsg').textContent='⚠ パスワードが違います';
+    document.getElementById('admPwInput').value='';
+    document.getElementById('admPwInput').focus();
+  }
+}
+
+document.getElementById('adm-close-auth').addEventListener('click', closeAdmin);
+document.getElementById('adm-close').addEventListener('click', closeAdmin);
+document.getElementById('adminPanel').addEventListener('click', e=>{ if(e.target===document.getElementById('adminPanel')) closeAdmin(); });
+document.getElementById('adm-addmoney').addEventListener('click',()=>{
+  state.balance += 100000; setAdmMsg('💴 +¥100,000 追加！'); saveState(); updateHomeBalance();
+});
+document.getElementById('adm-maxmoney').addEventListener('click',()=>{
+  state.balance = 999999; setAdmMsg('💰 残高を¥999,999に設定！'); saveState(); updateHomeBalance();
+});
+document.getElementById('adm-vip').addEventListener('click',()=>{
+  state.vip = !state.vip;
+  checkAndUnlockTitles();
+  saveState(); updateHomeBalance();
+  setAdmMsg(state.vip ? '👑 VIP付与！' : '👑 VIP解除');
+  if(currentScreen==='vip') renderVipPage();
+});
+document.getElementById('adm-godmode').addEventListener('click',()=>{
+  state.godMode = !state.godMode;
+  document.getElementById('godModeChip').style.display = state.godMode ? 'block' : 'none';
+  setAdmMsg(state.godMode ? '⚡ 絶対勝利ON！' : '⚡ 絶対勝利OFF');
+});
+document.getElementById('adm-alltitles').addEventListener('click',()=>{
+  TITLES.forEach(t=>{ if(!state.unlockedTitles.includes(t.id)) state.unlockedTitles.push(t.id); });
+  saveState(); setAdmMsg('🏆 全称号解放！');
+  if(currentScreen==='vip') renderVipPage();
+});
+document.getElementById('adm-broke').addEventListener('click',()=>{
+  state.balance = 0; setAdmMsg('💸 残高ゼロ！'); saveState(); updateHomeBalance();
+});
+document.getElementById('adm-reset').addEventListener('click',()=>{
+  if(!confirm('全データをリセットしますか？')) return;
+  localStorage.removeItem(SAVE_KEY); location.reload();
+});
+document.getElementById('adm-setbal').addEventListener('click',()=>{
+  const v = parseInt(document.getElementById('admBalInput').value);
+  if(isNaN(v)||v<0){ setAdmMsg('⚠ 正しい数値を入力'); return; }
+  state.balance = v; setAdmMsg(`残高を¥${fmt(v)}に設定！`); saveState(); updateHomeBalance();
+});
+function updateCoins(){ updateHomeBalance(); }
+loadState();
+// セーブデータがあればオンボーディングをスキップ
+if(localStorage.getItem(SAVE_KEY)){
+  document.getElementById('onboarding').style.display='none';
+}
+// 初期化
+if(state.debt > 0 && state.debtBorrowedAt) startDebtTimer();
+if(state.godMode) document.getElementById('godModeChip').style.display='block';
+// stats初期化（古いセーブデータ対応）
+if(!state.stats) state.stats={gambleTotal:0,gambleWins:0,gambleLoses:0,totalEarned:0,totalLost:0,maxBalance:state.balance,bankruptCount:0,stockBuys:0};
+if(!state.unlockedTitles) state.unlockedTitles=[];
+setInterval(()=>{
+  if(state.debt>0||state.debtBlacklistUntil||state.debtCooldownUntil) updateHomeBalance();
+}, 1000);
+document.getElementById('onboardBalance').textContent = '¥'+fmt(state.balance);
+renderHome();
+</script>
+</body>
+</html>
